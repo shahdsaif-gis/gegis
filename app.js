@@ -188,8 +188,12 @@ map.on('click', async function(e) {
     const lat = e.latlng.lat;
     const lng = e.latlng.lng;
     const siteInfoDiv = document.getElementById('site-info');
-// فتح القائمة تلقائياً لعرض نتائج الموقع المحدد
-document.getElementById('sidebar').classList.add('active');
+const sidebar = document.getElementById('sidebar');
+if (sidebar) {
+    sidebar.classList.add('active');
+}
+
+
 
 
     if (!siteInfoDiv) return;
@@ -336,6 +340,8 @@ function toggleLanguage() {
 }
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('active');
+    if (sidebar) {
+        sidebar.classList.toggle('active');
+    }
 }
 

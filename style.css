@@ -129,28 +129,59 @@ hr {
 .sidebar-footer strong {
     color: #fbbf24;
 }
-/* تحسين العرض والتجاوب للهواتف */
+/* تصميم بأسلوب USGS (لوحة منزلقة فوق الخريطة) */
 @media (max-width: 768px) {
     body {
-        flex-direction: column;
-        overflow-y: auto;
-    }
-
-    #sidebar {
-        width: 100% !important;
-        max-width: 100% !important;
-        max-height: 45vh !important; /* تقليل ارتفاع الشريط الجانبي */
-        overflow-y: auto !important;  /* إمكانية التمرير داخل الشريط عند الحاجة */
         position: relative;
-        box-shadow: none;
-        padding: 15px;
+        overflow: hidden;
     }
 
     #map {
-        width: 100% !important;
-        height: 55vh !important; /* إعطاء الخريطة المساحة الأكبر */
-        min-height: 300px;
+        width: 100vw !important;
+        height: 100vh !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+    }
+
+    #sidebar {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 85% !important;
+        max-width: 320px !important;
+        max-height: 80vh !important;
+        z-index: 1000;
+        background: rgba(15, 23, 42, 0.95); /* خلفية شبه شفافة معتمة */
+        backdrop-filter: blur(8px);
+        border-radius: 12px;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        overflow-y: auto;
+    }
+
+    /* حالة إخفاء القائمة عند الضغط على الزر */
+    #sidebar.collapsed {
+        transform: translateX(120%); /* إخفاء اللوحة خارج الشاشة */
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    #toggle-btn {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 1001;
+        background: #0ea5e9;
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 }
+
 
 

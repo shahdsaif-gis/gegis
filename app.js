@@ -188,6 +188,9 @@ map.on('click', async function(e) {
     const lat = e.latlng.lat;
     const lng = e.latlng.lng;
     const siteInfoDiv = document.getElementById('site-info');
+// فتح القائمة تلقائياً لعرض نتائج الموقع المحدد
+document.getElementById('sidebar').classList.add('active');
+
 
     if (!siteInfoDiv) return;
 

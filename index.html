@@ -1,68 +1,67 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GEGIS - منصة تحليل ملاءمة مواقع الطاقة الشمسية</title>
+    <title>GEGIS - Solar Site Suitability Platform</title>
    
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
    
-    <!-- Security Header Tags -->
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 </head>
 <body>
 
-    <!-- زر القائمة التفاعلي للتلفون (☰) -->
+    <!-- زر القائمة للتلفون -->
     <button id="toggle-btn" onclick="toggleSidebar()">☰</button>
 
     <!-- Sidebar Control Panel -->
     <div id="sidebar">
         <!-- Language Switcher Header -->
         <div class="header-top">
-            <h2 id="app-title">جيجيس ☀️</h2>
+            <h2 id="app-title">GEGIS ☀️</h2>
             <button id="lang-btn" onclick="toggleLanguage()">العربية</button>
         </div>
        
-        <p class="subtitle" id="app-subtitle">منصة تحليل ملاءمة مواقع الطاقة الشمسية وتحليل الإشعاع الشمسي</p>
+        <p class="subtitle" id="app-subtitle">Solar Power Site Suitability & Solar Radiation Analysis</p>
         <hr>
 
         <!-- Layer Control Section -->
         <div class="section">
-            <h3 id="layers-title">الطبقات المكانية</h3>
+            <h3 id="layers-title">Spatial Layers</h3>
             <label class="checkbox-container">
                 <input type="checkbox" id="ghi-layer" checked>
-                <span id="label-ghi">مؤشر الإشعاع الشمسي العالمي (GHI)</span>
+                <span id="label-ghi">Global Horizontal Irradiance (GHI)</span>
             </label>
             <label class="checkbox-container">
                 <input type="checkbox" id="terrain-layer" checked>
-                <span id="label-terrain">قيود التضاريس والانحدار</span>
+                <span id="label-terrain">Terrain & Slope Constraints</span>
             </label>
             <label class="checkbox-container">
                 <input type="checkbox" id="grid-layer" checked>
-                <span id="label-grid">شبكة الطاقة والبنية التحتية</span>
+                <span id="label-grid">Power Grid & Infrastructure</span>
             </label>
             <label class="checkbox-container">
                 <input type="checkbox" id="suitable-sites" checked>
-                <span id="label-sites">المواقع المثلى لمحطات الطاقة الشمسية</span>
+                <span id="label-sites">Optimal Solar Farm Sites</span>
             </label>
         </div>
 
         <!-- Info & Analysis Panel -->
         <div class="section info-card">
-            <h3 id="info-title">تفاصيل الموقع</h3>
-            <div id="info-content">
-                <p id="click-prompt">انقر على أي موقع في الخريطة لعرض تحليل الملاءمة والإشعاع الشمسي.</p>
+            <h3 id="info-title">Site Details</h3>
+            <div id="site-info">
+                <p id="click-prompt">Click anywhere on the map to analyze solar suitability and radiation.</p>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="footer">
-            <p><span id="designed-by">تصميم وتطوير:</span> <strong>شهد سيف</strong></p>
-            <p>© 2026 جيجيس. جميع الحقوق محفوظة.</p>
+            <p><span id="designed-by">Designed & Developed by:</span> <strong>Shahd Saif</strong></p>
+            <p>© 2026 GEGIS. All rights reserved.</p>
         </div>
     </div>
 
@@ -75,4 +74,3 @@
     <script src="app.js"></script>
 </body>
 </html>
-

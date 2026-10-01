@@ -129,7 +129,7 @@ hr {
 .sidebar-footer strong {
     color: #fbbf24;
 }
-/* تحسين العرض للهواتف والشاشات الصغيرة */
+/* تحسين العرض والتجاوب للهواتف */
 @media (max-width: 768px) {
     body {
         flex-direction: column;
@@ -139,21 +139,18 @@ hr {
     #sidebar {
         width: 100% !important;
         max-width: 100% !important;
-        height: auto !important;
+        max-height: 45vh !important; /* تقليل ارتفاع الشريط الجانبي */
+        overflow-y: auto !important;  /* إمكانية التمرير داخل الشريط عند الحاجة */
         position: relative;
         box-shadow: none;
+        padding: 15px;
     }
 
     #map {
         width: 100% !important;
-        height: 60vh !important; /* تخصيص 60% من ارتفاع الشاشة للخريطة */
-        min-height: 350px;
+        height: 55vh !important; /* إعطاء الخريطة المساحة الأكبر */
+        min-height: 300px;
     }
 }
 
 
-.copyright {
-    font-size: 0.72rem;
-    color: #64748b;
-    margin-top: 4px;
-}

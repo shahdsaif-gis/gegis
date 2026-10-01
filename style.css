@@ -129,6 +129,28 @@ hr {
 .sidebar-footer strong {
     color: #fbbf24;
 }
+/* تحسين العرض للهواتف والشاشات الصغيرة */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    #sidebar {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        position: relative;
+        box-shadow: none;
+    }
+
+    #map {
+        width: 100% !important;
+        height: 60vh !important; /* تخصيص 60% من ارتفاع الشاشة للخريطة */
+        min-height: 350px;
+    }
+}
+
 
 .copyright {
     font-size: 0.72rem;

@@ -1,0 +1,137 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', 'Cairo', sans-serif;
+}
+
+body {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #0f172a;
+}
+
+/* Sidebar Styling */
+#sidebar {
+    width: 360px;
+    background-color: #121824;
+    color: #e2e8f0;
+    padding: 24px;
+    z-index: 1000;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    border-right: 1px solid #1e293b;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#sidebar h2 {
+    color: #fbbf24;
+    font-size: 1.7rem;
+    font-weight: 700;
+}
+
+#lang-btn {
+    background-color: #1e293b;
+    color: #fbbf24;
+    border: 1px solid #fbbf24;
+    padding: 5px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+#lang-btn:hover {
+    background-color: #fbbf24;
+    color: #0f172a;
+}
+
+.subtitle {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.4;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: #1e293b;
+}
+
+.section h3 {
+    font-size: 1.05rem;
+    margin-bottom: 12px;
+    color: #38bdf8;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 0.92rem;
+    color: #cbd5e1;
+}
+
+.checkbox-container input {
+    accent-color: #fbbf24;
+    width: 16px;
+    height: 16px;
+}
+
+.info-box {
+    background-color: #1e293b;
+    padding: 14px;
+    border-radius: 8px;
+    border-left: 4px solid #fbbf24;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #94a3b8;
+}
+
+/* RTL Support */
+[dir="rtl"] #sidebar {
+    border-right: none;
+    border-left: 1px solid #1e293b;
+}
+
+[dir="rtl"] .info-box {
+    border-left: none;
+    border-right: 4px solid #fbbf24;
+}
+
+/* Map Container */
+#map {
+    flex-grow: 1;
+    height: 100vh;
+    background-color: #0b0f17;
+}
+/* Sidebar Footer Attribution */
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid #1e293b;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    text-align: center;
+}
+
+.sidebar-footer strong {
+    color: #fbbf24;
+}
+
+.copyright {
+    font-size: 0.72rem;
+    color: #64748b;
+    margin-top: 4px;
+}

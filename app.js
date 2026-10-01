@@ -331,3 +331,8 @@ function toggleLanguage() {
     document.documentElement.dir = t.dir;
     document.documentElement.lang = t.lang;
 }
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('collapsed');
+}
+

@@ -129,7 +129,7 @@ hr {
 .sidebar-footer strong {
     color: #fbbf24;
 }
-/* تصميم زر الثلاثة خطوط والقائمة المنزلقة فوق الخريطة الكاملة */
+/* تصميم القائمة والزر للتلفون */
 @media (max-width: 768px) {
     body {
         position: relative;
@@ -138,7 +138,6 @@ hr {
         padding: 0;
     }
 
-    /* الخريطة تغطي التلفون بالكامل */
     #map {
         width: 100vw !important;
         height: 100vh !important;
@@ -148,7 +147,6 @@ hr {
         z-index: 1;
     }
 
-    /* زر الأيقونة ذات الثلاثة خطوط (☰) */
     #toggle-btn {
         display: flex !important;
         align-items: center;
@@ -168,7 +166,6 @@ hr {
         box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
 
-    /* القائمة تكون مخفية افتراضياً خارج الشاشة */
     #sidebar {
         position: fixed;
         top: 70px;
@@ -185,20 +182,19 @@ hr {
         box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         overflow-y: auto;
        
-        /* حركة الإخفاء والإظهار */
         transform: translateY(-20px);
         opacity: 0;
-        pointer-events: none;
+        pointer-events: none; /* لمنع إعاقة النقر على الخريطة وهي مخفية */
         transition: all 0.3s ease-in-out;
     }
 
-    /* عند الضغط على الأيقونة تظهر القائمة */
+    /* عندما تكون القائمة مفتوحة فقط تقبل اللمس */
+
+
     #sidebar.active {
         transform: translateY(0);
         opacity: 1;
         pointer-events: auto;
     }
 }
-
-
 

@@ -11,97 +11,60 @@ document.addEventListener('DOMContentLoaded', function() {
     }).setView([15.5007, 32.5599], 6);
 
     // Standard Base Map (OpenStreetMap)
-    const baseTile = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
     // --- Defining Real Working Layers ---
-   
-    // 1. Terrain & Topo Layer
     layers['terrain'] = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
         maxZoom: 17,
         opacity: 0.7
     });
 
-    // 2. Infrastructure & Grid Layer
     layers['grid'] = L.tileLayer('https://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=6170afd103a04218817d3db928a43f5b', {
         maxZoom: 19,
         opacity: 0.6
     });
 
-    // 3. Solar Radiation Layer Overlay
     layers['ghi'] = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
         maxZoom: 19,
         opacity: 0.5
     });
 
-    // 4. Optimal Sites Marker Layer
     const optimalSiteMarker = L.circleMarker([19.0, 30.5], {
-        color: '#FF5722',
-        fillColor: '#FFEB3B',
-        fillOpacity: 0.9,
-        radius: 12
-    }).bindPopup("<b>موقع مقترح مثالي ☀️</b><br>إشعاع شمسي مرتفع جداً وتضاريس مستوية.");
-   
-    layers['sites'] = L.layerGroup([optimalSiteMarker]);
 
-    // Connect Checkboxes to Layers
-    const layerGhi = document.getElementById('layer-ghi');
-    const layerTerrain = document.getElementById('layer-terrain');
-    const layerGrid = document.getElementById('layer-grid');
-    const layerSites = document.getElementById('layer-sites');
-
-    if (layerGhi) layerGhi.addEventListener('change', (e) => toggleMapLayer('ghi', e.target.checked));
-    if (layerTerrain) layerTerrain.addEventListener('change', (e) => toggleMapLayer('terrain', e.target.checked));
-    if (layerGrid) layerGrid.addEventListener('change', (e) => toggleMapLayer('grid', e.target.checked));
-    if (layerSites) layerSites.addEventListener('change', (e) => toggleMapLayer('sites', e.target.checked));
-
-    // Map Click Handler for Spatial Assessment
-    map.on('click', async function(e) {
-        if (e.originalEvent) {
-            e.originalEvent.stopPropagation();
-        }
-
-        const lat = e.latlng.lat;
-        const lng = e.latlng.lng;
-        const siteInfoDiv = document.getElementById('site-info');
-
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            sidebar.classList.add('active');
-        }
-
-        if (!siteInfoDiv) return;
-
-        const loadingText = currentLang === 'ar' ? 'جاري جلب البيانات وتحليل النقطة...' : 'Fetching data and analyzing site...';
+        const loadingText = currentLang === 'ar' ? 'جاري تحليل موقع النقطة وتحليل الملاءة...' : 'Analyzing point location & suitability...';
         siteInfoDiv.innerHTML = `<p>${loadingText}</p>`;
 
         try {
-            // Fetch Real-time Elevation and Solar Data
-
-
+            // Fetch Real-time Elevation Data directly from Open-Meteo
             const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=surface_solar_radiation&elevation=nan`);
             const data = await response.json();
-            // Detect Elevation or default to 0 for water bodies
-            let elevation = (data.elevation !== undefined && !isNaN(data.elevation) && data.elevation !== null)
-                            ? Math.round(data.elevation)
-                            : 0;
+
+            // Proper Elevation parsing without forcing zero blindly
+            let rawElevation = data.elevation;
+            let elevation = 450; // Fallback average land elevation in Sudan
+            let isWater = false;
+
+            if (rawElevation !== undefined && rawElevation !== null && !isNaN(rawElevation)) {
+                elevation = Math.round(rawElevation);
+                // Check if negative or exact zero with ocean/sea proximity logic
+                if (elevation <= 0) {
+                    isWater = true;
+                    elevation = 0;
+                }
+            }
 
             // Estimate Annual Solar Radiation dynamically based on coordinates
             const annualRadiation = Math.round(1800 + (Math.abs(lat) % 6) * 45 + (Math.abs(lng) % 4) * 30);
 
-            // Logic to classify Water / Nile River points
-            let isWater = false;
-            if (elevation <= 2) {
-                isWater = true;
-            }
-
             // Spatial Suitability Decision Logic
+
+
             let suitabilityAr = "";
             let suitabilityEn = "";
             let suitabilityColor = "";
-
             if (isWater) {
                 suitabilityAr = "غير ملائم (مسطح مائي / مجرى نيل) 🚫";
                 suitabilityEn = "Unsuitable (Water Body / River) 🚫";
@@ -116,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 suitabilityColor = "#8BC34A"; // أخضر فاتح
             } else if (elevation >= 1100) {
                 suitabilityAr = "متوسطة (قيود تضاريس وارتفاعات) ⚠️";
-                suitabilityEn = "Moderate (High Elevation Constraints) ⚠️️";
+                suitabilityEn = "Moderate (High Elevation Constraints) ⚠️";
                 suitabilityColor = "#FFC107"; // أصفر
             } else {
                 suitabilityAr = "منخفضة (قيود إيكولوجية/مناخية)";

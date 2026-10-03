@@ -5,13 +5,240 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GEGIS - Solar Power Site Suitability & System Sizing</title>
    
-    <!-- 1. إضافات الأمان والتحصين (Security & Protection Headers) -->
+    <!-- إضافات الأمان والتحصين -->
+
+
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com;
+        style-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://fonts.googleapis.com;
+        font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
+        img-src 'self' data: blob: https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://server.arcgisonline.com;
+        connect-src 'self' https://*.tile.openstreetmap.org https://server.arcgisonline.com;
+        frame-ancestors 'none';
+    ">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #0f172a;
+        }
+
+        /* Map Container */
+        #map {
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        /* القائمة الجانبية بتصميم الكروت العصري */
+        .sidebar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 390px;
+            max-width: 92%;
+            background: #0f172a;
+            border-radius: 18px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            z-index: 999;
+            overflow: hidden;
+            color: #f8fafc;
+            border: 1px solid #1e293b;
+        }
+
+        .sidebar-header-banner {
+            background: #1e293b;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: #0284c7;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .sidebar-content {
+            padding: 16px;
+        }
 
         /* 1. قسم الطبقات المكانية */
+        .layers-section {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 16px;
+            border: 1px solid #334155;
+        }
 
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #38bdf8;
             margin-bottom: 12px;
         }
-        /* اسم المطور في أسفل القائمة */
+
+        .layers-flex {
+            background: #0f172a;
+            padding: 8px 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .layer-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .layer-item input[type="checkbox"] {
+            accent-color: #10b981;
+            cursor: pointer;
+            width: 15px;
+            height: 15px;
+        }
+
+        /* 2. كروت تحليلات وتفاصيل المنطقة */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: #1e293b;
+            padding: 12px 6px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+
+        .stat-icon {
+            font-size: 18px;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .stat-title {
+            display: block;
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        /* 3. كرت رسم وحساب المساحة والألواح */
+        .area-calculator-section {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 14px;
+            border: 1px solid #334155;
+        }
+
+        /* الموقع والإحداثيات */
+        .location-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #cbd5e1;
+            margin-bottom: 14px;
+        }
+
+        /* 4. الأزرار السفلية */
+        .action-buttons-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .btn-main {
+            flex: 1.2;
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .btn-main:hover {
+            background: #10b981;
+        }
+
+        .btn-sub {
+            flex: 1;
+            background: transparent;
+            color: #f8fafc;
+            border: 1px solid #475569;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .btn-sub:hover {
+            background: #1e293b;
+        }
+
+        /* اسم المطور أسفل القائمة الجانبية */
+
+
         .developer-footer {
             text-align: center;
             padding-top: 10px;
@@ -20,8 +247,91 @@
             font-weight: bold;
             color: #eab308;
         }
+        /* Modal Overlay مع تأثير الزجاج الضبابي Glassmorphism */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-                    <!-- جعل GEGIS أصفر بالكامل -->
+        /* نافذة حاسبة الأحمال */
+        .sizing-card {
+            background: #0f172a;
+            color: #f8fafc;
+            width: 480px;
+            max-width: 100%;
+            padding: 25px;
+            border-radius: 14px;
+            border: 1px solid #334155;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 9px 12px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: white;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        /* ورقة التقرير الملونة الجاهزة للطباعة */
+        #printable-report {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            width: 800px;
+            max-width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 40px;
+            border-radius: 14px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printable-report, #printable-report * { visibility: visible; }
+            #printable-report { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; box-shadow: none; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Map Container -->
+    <div id="map"></div>
+
+    <!-- Sidebar Layout -->
+    <div class="sidebar" id="sidebar">
+       
+        <!-- Header -->
+        <div class="sidebar-header-banner">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="header-icon"><i class="fa-solid fa-solar-panel"></i></div>
+                <div>
                     <h3 style="margin:0; font-size:16px; color:#eab308;" id="txt-app-title">GEGIS Analytics ☀️</h3>
                     <p style="margin:0; font-size:11px; color:#94a3b8;" id="txt-app-subtitle">تقييم الملاءة المكانية والمنظومة</p>
                 </div>
@@ -115,11 +425,12 @@
                 </button>
             </div>
 
-            <!-- 6. إضافة اسم المطور أسفل الكرت باللون الأصفر -->
+            <!-- 6. اسم المطور أسفل الكرت -->
+
+
             <div class="developer-footer" id="txt-developer-name">
                 تطوير: م. شهد سيف
             </div>
-
         </div>
     </div>
 
@@ -128,8 +439,6 @@
         <div class="sizing-card">
             <h3 style="color:#38bdf8; margin-bottom:15px; border-bottom:1px solid #334155; padding-bottom:8px;">
                 ⚡ حاسبة الأحمال ومكونات المنظومة الشمسيّة
-
-
             </h3>
             <div class="form-group">
                 <label>إجمالي الأحمال الكهربائية الكلية (Watt):</label>
@@ -153,6 +462,7 @@
             </div>
         </div>
     </div>
+
     <!-- 2. Printable PDF Report Modal (التقرير الملون) -->
     <div class="modal-overlay" id="report-modal">
         <div id="printable-report">
@@ -168,7 +478,6 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #0284c7; padding-bottom:12px; margin-bottom:20px;">
                     <div>
                         <h1 style="margin:0; color:#eab308; font-size:24px;">GEGIS ☀️</h1>
-
                         <p style="margin:2px 0 0 0; color:#64748b; font-size:12px;">Solar Engineering Consultancy Report</p>
                     </div>
                     <div style="text-align:left; font-size:12px; color:#475569;">
@@ -177,6 +486,7 @@
                         <p style="margin:2px 0;"><strong>إعداد المصمم:</strong> م. شهد سيف</p>
                     </div>
                 </div>
+
                 <!-- Section 1: Spatial Analytics -->
                 <div style="background:#f8fafc; border-right:4px solid #0284c7; padding:15px; border-radius:6px; margin-bottom:18px;">
                     <h3 style="margin:0 0 10px 0; color:#0284c7; font-size:15px;">📍 أولاً: التحليل الجغرافي والمكاني للموقع</h3>

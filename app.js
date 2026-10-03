@@ -13,8 +13,6 @@
     let currentLanguage = 'ar';
 
     const translations = {
-
-
         ar: {
             appTitle: "GEGIS Analytics ☀️",
             appSubtitle: "تقييم الملاءة المكانية والمنظومة",
@@ -35,7 +33,7 @@
             developerName: "Designed & Developed by Shahd Saif"
         },
         en: {
-            appTitle: "GEGIS Analytics ☀️",
+            appTitle: "GEGIS Analytics ☀️️",
             appSubtitle: "Spatial Suitability & Sizing",
             layersTitle: "Available Spatial Layers",
             layerGhi: "Radiation (GHI)",
@@ -54,16 +52,11 @@
             developerName: "Designed & Developed by Shahd Saif"
         }
     };
+
     function sanitizeHTML(str) {
         if (typeof str !== 'string') return str;
         return str.replace(/[&<>"']/g, function (match) {
-            const escapeChars = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#x27;'
-            };
+            const escapeChars = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;' };
             return escapeChars[match];
         });
     }
@@ -73,97 +66,47 @@
             const mapContainer = document.getElementById('map');
             if (!mapContainer) return;
 
-            // 1. تهيئة الخريطة على مركز الخرطوم
             map = L.map('map', {
                 center: [15.5007, 32.5599],
                 zoom: 13,
                 zoomControl: true
             });
 
-            // 2. خريطة الأقمار الاصطناعية (Esri Satellite)
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 maxZoom: 19,
                 attribution: 'Tiles &copy; Esri'
             }).addTo(map);
 
-            // 3. طبقة التضاريس وتأثير الظلال (Hillshade / Terrain Shading)
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}', {
                 maxZoom: 19,
-                opacity: 0.35,
-                attribution: 'Esri Hillshade'
-            }).addTo(map);
-
-            // 4. طبقة الأسماء والحدود الشفافة فوق القمر الاصطناعي
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 19
+                opacity: 0.35
             }).addTo(map);
 
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
                 maxZoom: 19
             }).addTo(map);
 
-            // 5. طبقة الرسم
             drawnItems = new L.FeatureGroup();
             map.addLayer(drawnItems);
 
-            // إعداد أداة الرسم المباشرة
             polygonDrawer = new L.Draw.Polygon(map);
-
-            const drawControl = new L.Control.Draw({
-                draw: {
-                    polygon: true,
-                    polyline: false,
-                    rectangle: true,
-                    circle: false,
-                    marker: false,
-                    circlemarker: false
-                },
-                edit: {
-                    featureGroup: drawnItems
-                }
-            });
-            map.addControl(drawControl);
 
             map.on(L.Draw.Event.CREATED, function (event) {
                 const layer = event.layer;
                 drawnItems.clearLayers();
                 drawnItems.addLayer(layer);
-               
                 calculateAreaAndPanels(layer);
             });
-
-            // ربط زر الرسم
-            setupEventListeners();
 
         } catch (error) {
             console.error("خطأ أثناء تهيئة الخريطة:", error);
         }
     }
 
-    /**
-     * تفعيل وضع الرسم المباشر
-     */
     window.startPolygonDraw = function () {
-        if (polygonDrawer) {
-            polygonDrawer.enable();
-        } else if (map) {
-            new L.Draw.Polygon(map).enable();
-        }
+        if (polygonDrawer) polygonDrawer.enable();
+        else if (map) new L.Draw.Polygon(map).enable();
     };
-
-    function setupEventListeners() {
-        // البحث عن زر الرسم بواسطة الـ ID أو الكلاس أو أي زر يحتوي نص "رسم"
-        const drawBtn = document.getElementById('btn-draw-polygon') ||
-                        document.querySelector('.btn-draw') ||
-                        Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('رسم') || b.innerText.includes('Draw'));
-
-        if (drawBtn) {
-            drawBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                window.startPolygonDraw();
-            });
-        }
-    }
 
     function calculateAreaAndPanels(layer) {
         try {
@@ -176,32 +119,57 @@
             const panelCount = Math.floor(areaInMeters / areaPerPanel);
             const totalCapacityKWp = ((panelCount * 400) / 1000).toFixed(2);
 
-            const shadowPercentage = calculateShadowFactor(latLngs, areaInMeters);
+            document.getElementById('val-area').innerText = sanitizeHTML(areaInMeters.toFixed(2) + ' m²');
+            document.getElementById('val-panels').innerText = sanitizeHTML(panelCount + ' ' + (currentLanguage === 'ar' ? 'لوح' : 'Panels'));
+            document.getElementById('val-power').innerText = sanitizeHTML(totalCapacityKWp + ' kWp');
 
-            const valArea = document.getElementById('val-area');
-            const valPanels = document.getElementById('val-panels');
-            const valPower = document.getElementById('val-power');
+            // تحديث التقرير تلقائياً
+            const repArea = document.getElementById('rep-area');
+            const repPanels = document.getElementById('rep-panels');
+            const repKwp = document.getElementById('rep-kwp');
 
-            if (valArea) valArea.innerText = sanitizeHTML(areaInMeters.toFixed(2) + ' m²');
-            if (valPanels) valPanels.innerText = sanitizeHTML(panelCount + ' ' + (currentLanguage === 'ar' ? 'لوح' : 'Panels'));
-            if (valPower) valPower.innerText = sanitizeHTML(totalCapacityKWp + ' kWp');
-
-            const suitabilityElem = document.getElementById('stat-suitability-val');
-            if (suitabilityElem) {
-                const suitabilityScore = Math.max(70, Math.min(98, 100 - shadowPercentage));
-                suitabilityElem.innerHTML = sanitizeHTML(`S1 (${suitabilityScore.toFixed(0)}%) <br><small style="font-size:9px; color:#cbd5e1;">الظل: ${shadowPercentage}%</small>`);
-            }
+            if (repArea) repArea.innerText = areaInMeters.toFixed(2) + ' m²';
+            if (repPanels) repPanels.innerText = panelCount + ' لوح';
+            if (repKwp) repKwp.innerText = totalCapacityKWp + ' kWp';
 
         } catch (err) {
             console.error("خطأ في حساب المساحة والظل:", err);
         }
     }
 
-    function calculateShadowFactor(coordinates, area) {
-        if (!coordinates || coordinates.length < 3) return 5;
-        let shadowEffect = (area < 100) ? 12 : (area < 500) ? 8 : 4;
-        return Math.min( shadowEffect + Math.floor(Math.random() * 3), 20 );
-    }
+    // --- دوال التحكم بالنوافذ المنبثقة ---
+    window.openSizingModal = function () {
+        document.getElementById('sizing-modal').style.display = 'flex';
+    };
+
+    window.closeSizingModal = function () {
+        document.getElementById('sizing-modal').style.display = 'none';
+    };
+
+    window.openReportModal = function () {
+        document.getElementById('report-modal').style.display = 'flex';
+    };
+
+    window.closeReportModal = function () {
+        document.getElementById('report-modal').style.display = 'none';
+    };
+
+    window.calculateSystemSizing = function () {
+        const watts = parseFloat(document.getElementById('load-watts').value) || 5000;
+        const nightHours = parseFloat(document.getElementById('night-hours').value) || 8;
+
+        const kw = (watts / 1000).toFixed(2);
+        const inverterKw = (kw * 1.25).toFixed(2);
+        const batteryKwh = (kw * nightHours).toFixed(1);
+        const batteryAh = Math.round((batteryKwh * 1000) / 48);
+
+        document.getElementById('rep-load').innerText = kw + ' kW';
+        document.getElementById('rep-inverter').innerText = inverterKw + ' kW';
+        document.getElementById('rep-battery').innerText = batteryKwh + ' kWh (48V / ' + batteryAh + 'Ah)';
+
+        alert('تم حساب المكونات وتحديث التقرير بنجاح! ✅');
+        window.closeSizingModal();
+    };
 
     window.toggleLanguage = function () {
         currentLanguage = (currentLanguage === 'ar') ? 'en' : 'ar';
@@ -210,8 +178,7 @@
         document.documentElement.dir = (currentLanguage === 'ar') ? 'rtl' : 'ltr';
         document.documentElement.lang = currentLanguage;
        
-        const langBtn = document.getElementById('lang-btn');
-        if (langBtn) langBtn.innerText = (currentLanguage === 'ar') ? 'EN' : 'AR';
+        document.getElementById('lang-btn').innerText = (currentLanguage === 'ar') ? 'EN' : 'AR';
        
         const setText = (id, text) => {
             const el = document.getElementById(id);
@@ -240,3 +207,4 @@
     document.addEventListener('DOMContentLoaded', initMap);
 
 })();
+

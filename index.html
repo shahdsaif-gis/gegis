@@ -13,214 +13,132 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
         body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
+            margin: 0; padding: 0; height: 100%; width: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
-            overflow: hidden;
+            background-color: #0f172a; color: #f8fafc; overflow: hidden;
         }
 
-        #map {
-            width: 100%;
-            height: 100vh;
-            z-index: 1;
-        }
+        #map { width: 100%; height: 100vh; z-index: 1; }
 
-        /* القائمة الجانبية Floating Sidebar */
         .sidebar {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 380px;
-            max-height: calc(100vh - 40px);
-            background: rgba(15, 23, 42, 0.92);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            z-index: 1000;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-            overflow-y: auto;
-            transition: all 0.3s ease;
-        }
 
+
+            position: absolute; top: 20px; right: 20px; width: 380px;
+            max-height: calc(100vh - 40px); background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; z-index: 1000; padding: 16px;
+            display: flex; flex-direction: column; gap: 14px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            overflow-y: auto; transition: all 0.3s ease;
+        }
         .sidebar-header-banner {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 12px;
         }
 
         .header-icon {
-            width: 36px;
-            height: 36px;
-            background: rgba(234, 179, 8, 0.15);
-            color: #eab308;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
+            width: 36px; height: 36px; background: rgba(234, 179, 8, 0.15);
+            color: #eab308; border-radius: 10px; display: flex;
+            align-items: center; justify-content: center; font-size: 18px;
         }
 
         .section-box {
-            background: rgba(30, 41, 59, 0.7);
-            border-radius: 12px;
-            padding: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(30, 41, 59, 0.7); border-radius: 12px;
+            padding: 12px; border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .section-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #38bdf8;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            font-size: 13px; font-weight: 600; color: #38bdf8;
+            margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
         }
 
-        .layer-options {
-            display: flex;
-            justify-content: space-between;
-            gap: 8px;
-        }
-
-        .layer-item {
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-        }
-
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
+        .layer-options { display: flex; justify-content: space-between; gap: 8px; }
+        .layer-item { font-size: 12px; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+        .analytics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 
         .stat-card {
-            background: rgba(15, 23, 42, 0.6);
-            border-radius: 8px;
-            padding: 8px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.6); border-radius: 8px;
+            padding: 8px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .stat-title {
-            font-size: 10px;
-            color: #94a3b8;
-            margin-bottom: 4px;
-        }
-
-        .stat-value {
-            font-size: 12px;
-            font-weight: bold;
-            color: #f8fafc;
-        }
+        .stat-title { font-size: 10px; color: #94a3b8; margin-bottom: 4px; }
+        .stat-value { font-size: 12px; font-weight: bold; color: #f8fafc; }
 
         .btn {
-            background: #0284c7;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            width: 100%;
-            transition: background 0.2s;
+            background: #0284c7; color: white; border: none; padding: 8px 12px;
+            border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 6px; width: 100%; transition: background 0.2s;
         }
 
-        .btn:hover {
-            background: #0369a1;
-        }
-
-        .btn-success {
-            background: #059669;
-        }
-        .btn-success:hover {
-            background: #047857;
-        }
+        .btn:hover { background: #0369a1; }
+        .btn-success { background: #059669; }
+        .btn-success:hover { background: #047857; }
 
         .location-badge {
-            font-size: 11px;
-            color: #38bdf8;
-            text-align: center;
-            background: rgba(56, 189, 248, 0.1);
-            padding: 6px;
-            border-radius: 6px;
+            font-size: 11px; color: #38bdf8; text-align: center;
+            background: rgba(56, 189, 248, 0.1); padding: 6px; border-radius: 6px;
         }
 
         .developer-footer {
-            text-align: center;
-            font-size: 11px;
-            color: #eab308;
-            font-weight: bold;
-            padding-top: 8px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            letter-spacing: 0.5px;
+            text-align: center; font-size: 11px; color: #eab308;
+            font-weight: bold; padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1); letter-spacing: 0.5px;
         }
 
-        /* زر الخطوط الثلاثة (منيو التلفون) */
         .menu-toggle-btn {
-            display: none;
-            background: #334155;
-            color: #f8fafc;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
+            display: none; background: #334155; color: #f8fafc; border: none;
+            padding: 6px 10px; border-radius: 6px; font-size: 16px; cursor: pointer;
         }
 
-        /* التجاوب مع الهواتف والأجهزة الصغيرة */
+        /* Modal Popups (النوافذ المنبثقة) */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px);
+            z-index: 9999; justify-content: center; align-items: center; padding: 20px;
+        }
+
+        .sizing-card {
+            background: #0f172a; color: #f8fafc; width: 450px; max-width: 100%;
+            padding: 24px; border-radius: 16px; border: 1px solid #334155;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 6px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155;
+            color: white; border-radius: 8px; font-size: 13px;
+        }
+
+        #printable-report {
+            background: #ffffff !important; color: #0f172a !important; width: 750px;
+            max-width: 95%; max-height: 90vh; overflow-y: auto; padding: 35px;
+            border-radius: 14px; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printable-report, #printable-report * { visibility: visible; }
+            #printable-report { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
+            .no-print { display: none !important; }
+        }
+
         @media (max-width: 600px) {
-            .menu-toggle-btn {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .sidebar {
-                top: 12px !important;
-                right: 12px !important;
-                left: 12px !important;
-                width: auto !important;
-                max-width: 100% !important;
-            }
-
-            /* عند إغلاق المنيو تُخفى محتويات القائمة */
-            .sidebar.collapsed .sidebar-content {
-                display: none !important;
-            }
+            .menu-toggle-btn { display: inline-flex; align-items: center; justify-content: center; }
+            .sidebar { top: 12px !important; right: 12px !important; left: 12px !important; width: auto !important; max-width: 100% !important; }
+            .sidebar.collapsed .sidebar-content { display: none !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- حاوي الخريطة الأساسي -->
     <div id="map"></div>
 
     <!-- القائمة الجانبية -->
     <div class="sidebar collapsed" id="sidebar">
-        <!-- الشريط العلوي للقائمة -->
         <div class="sidebar-header-banner">
             <div style="display:flex; align-items:center; gap:10px;">
                 <div class="header-icon"><i class="fa-solid fa-solar-panel"></i></div>
@@ -231,16 +149,13 @@
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
                 <button id="lang-btn" style="background:#eab308; color:#0f172a; border:none; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:11px; cursor:pointer;" onclick="toggleLanguage()">EN</button>
-                <!-- زر الثلاثة خطوط للموبايل -->
                 <button class="menu-toggle-btn" onclick="toggleSidebarMenu()" title="القائمة">
                     <i class="fa-solid fa-bars" id="menu-icon"></i>
                 </button>
             </div>
         </div>
 
-        <!-- محتوى القائمة الممكن إخفاؤه في الهواتف -->
         <div class="sidebar-content" style="display: flex; flex-direction: column; gap: 12px;">
-            <!-- الطبقات المكانية المتاحة -->
             <div class="section-box">
                 <div class="section-title"><i class="fa-solid fa-layer-group"></i> <span id="txt-layers-title">الطبقات المكانية المتاحة</span></div>
                 <div class="layer-options">
@@ -250,7 +165,6 @@
                 </div>
             </div>
 
-            <!-- الكروت الإحصائية -->
             <div class="analytics-grid">
                 <div class="stat-card">
                     <div class="stat-title" id="txt-stat-ghi-title">الإشعاع الشمسي</div>
@@ -266,12 +180,10 @@
                 </div>
             </div>
 
-            <!-- رسم المضلع والمساحة -->
             <div class="section-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                     <div class="section-title" style="margin:0;"><i class="fa-solid fa-vector-square"></i> <span id="txt-area-title">المساحة والألواح الشمسية</span></div>
                     <button class="btn" style="width:auto; padding:4px 8px;" id="btn-draw-polygon" onclick="startPolygonDraw()"><i class="fa-solid fa-pen"></i> <span id="txt-btn-draw">رسم المضلع</span></button>
-
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:11px; background:rgba(15,23,42,0.4); padding:8px; border-radius:6px;">
                     <div><span style="color:#94a3b8;" id="txt-total-area">المساحة الكلية:</span> <strong id="val-area">0.00 m²</strong></div>
@@ -280,42 +192,128 @@
                 </div>
             </div>
 
-            <!-- الموقع الحالي -->
             <div class="location-badge" id="val-location-text">
                 <i class="fa-solid fa-location-dot"></i> الخرطوم - محلية الخرطوم [15.5007, 32.5599]
             </div>
 
-            <!-- أزرار الإجراءات -->
+            <!-- أزرار العمليات المشغلة للنوافذ المنبثقة -->
             <div style="display:flex; gap:8px;">
-                <button class="btn btn-success" id="btn-export-report"><i class="fa-solid fa-file-pdf"></i> <span id="txt-btn-export">تصدير التقرير</span></button>
-                <button class="btn" style="background:#1e293b;" id="btn-load-calc"><i class="fa-solid fa-calculator"></i> <span id="txt-btn-calc">حاسبة الأحمال</span></button>
+                <button class="btn btn-success" id="btn-export-report" onclick="openReportModal()"><i class="fa-solid fa-file-pdf"></i> <span id="txt-btn-export">تصدير التقرير</span></button>
+                <button class="btn" style="background:#1e293b;" id="btn-load-calc" onclick="openSizingModal()"><i class="fa-solid fa-calculator"></i> <span id="txt-btn-calc">حاسبة الأحمال</span></button>
             </div>
 
-            <!-- المطور باللغة الإنجليزية -->
             <div class="developer-footer" id="txt-developer-name">
                 Designed & Developed by Shahd Saif
             </div>
         </div>
     </div>
 
-    <!-- استدعاء المكتبات والبرامج النصية في نهاية الملف -->
+    <!-- 1. نافذة حاسبة الأحمال (Sizing Modal) -->
+    <div class="modal-overlay" id="sizing-modal">
+        <div class="sizing-card">
+            <h3 style="color:#38bdf8; margin-bottom:15px; border-bottom:1px solid #334155; padding-bottom:8px; font-size:15px;">
+                ⚡ حاسبة الأحمال ومكونات المنظومة الشمسيّة
+            </h3>
+            <div class="form-group">
+                <label>إجمالي الأحمال الكهربائية الكلية (Watt):</label>
+                <input type="number" id="load-watts" value="5000" min="1" max="100000">
+            </div>
+            <div class="form-group">
+                <label>عدد ساعات التشغيل الليلية (ساعات):</label>
+                <input type="number" id="night-hours" value="8" min="1" max="24">
+            </div>
+            <div class="form-group">
+                <label>نوع البطاريات المفضل:</label>
+                <select id="battery-type">
+                    <option value="Lithium LiFePO4">ليثيوم (Lithium LiFePO4)</option>
+                    <option value="Gel Battery">بطاريات جل (Gel Deep Cycle)</option>
+                    <option value="Flooded Lead-Acid">بطاريات سائلة (Flooded Lead-Acid)</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn btn-success" onclick="calculateSystemSizing()">حساب المكونات ✅</button>
+                <button class="btn" style="background:#64748b;" onclick="closeSizingModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. نافذة التقرير الفني المطبوع (Report Modal) -->
+    <div class="modal-overlay" id="report-modal">
+        <div id="printable-report">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #0284c7; padding-bottom:12px; margin-bottom:20px;">
+                <div>
+                    <h1 style="margin:0; color:#eab308; font-size:22px;">GEGIS ☀️</h1>
+                    <p style="margin:2px 0 0 0; color:#64748b; font-size:11px;">Solar Engineering Consultancy Report</p>
+                </div>
+                <div style="text-align:left; font-size:11px; color:#475569;">
+                    <p style="margin:2px 0;"><strong>تاريخ التقرير:</strong> 2026-10-03</p>
+                    <p style="margin:2px 0;"><strong>Designed & Developed by:</strong> Shahd Saif</p>
+                </div>
+            </div>
+
+            <div style="background:#f8fafc; border-right:4px solid #0284c7; padding:12px; border-radius:6px; margin-bottom:15px; font-size:12px;">
+                <h3 style="margin:0 0 8px 0; color:#0284c7; font-size:14px;">📍 أولاً: التحليل الجغرافي والمكاني للموقع</h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <div><strong>الإحداثيات الجغرافية:</strong> [15.5007, 32.5599]</div>
+                    <div><strong>الارتفاع عن البحر:</strong> 380m</div>
+                    <div><strong>الإشعاع الشمسي (GHI):</strong> 2,174 kWh/m²/yr</div>
+                    <div><strong>درجة الملاءة (MCDA):</strong> S1 (94%)</div>
+                </div>
+            </div>
+
+            <div style="background:#f8fafc; border-right:4px solid #10b981; padding:12px; border-radius:6px; margin-bottom:15px; font-size:12px;">
+                <h3 style="margin:0 0 8px 0; color:#10b981; font-size:14px;">📐 ثانياً: تقييم المساحات وسعة الألواح</h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <div><strong>المساحة المحسوبة:</strong> <span id="rep-area">0.00 m²</span></div>
+                    <div><strong>عدد الألواح (400W):</strong> <span id="rep-panels">0 لوح</span></div>
+                    <div><strong>القدرة الإجمالية:</strong> <span id="rep-kwp">0.00 kWp</span></div>
+                </div>
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <h3 style="margin:0 0 8px 0; color:#0f172a; font-size:14px;">⚡ ثالثاً: حاسبة الأحمال ومكونات المنظومة</h3>
+                <table style="width:100%; border-collapse:collapse; font-size:11px; text-align:right;">
+                    <thead>
+                        <tr style="background:#0f172a; color:#ffffff;">
+                            <th style="padding:6px; border:1px solid #334155;">المكون الهندسي</th>
+                            <th style="padding:6px; border:1px solid #334155;">المواصفة المحسوبة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding:6px; border:1px solid #e2e8f0;">إجمالي الأحمال الكلية</td>
+                            <td style="padding:6px; border:1px solid #e2e8f0;" id="rep-load">5.00 kW</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px; border:1px solid #e2e8f0;">محول الطاقة (Inverter)</td>
+                            <td style="padding:6px; border:1px solid #e2e8f0;" id="rep-inverter">6.25 kW</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px; border:1px solid #e2e8f0;">بنك البطاريات المطلوب</td>
+                            <td style="padding:6px; border:1px solid #e2e8f0;" id="rep-battery">40.0 kWh (48V / 833Ah)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="no-print" style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid #e2e8f0; padding-top:12px;">
+                <button onclick="window.print()" style="background:#0f172a; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:bold;">🖨️ طباعة التقرير</button>
+                <button onclick="closeReportModal()" style="background:#64748b; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- المكتبات الجافاسكريبت -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <script src="app.js"></script>
 
-    <!-- كود التحكم بتصغير وتكبير المنيو للهاتف -->
     <script>
         function toggleSidebarMenu() {
             const sidebar = document.getElementById('sidebar');
             const menuIcon = document.getElementById('menu-icon');
-           
             sidebar.classList.toggle('collapsed');
-           
-            if (sidebar.classList.contains('collapsed')) {
-                menuIcon.className = 'fa-solid fa-bars';
-            } else {
-                menuIcon.className = 'fa-solid fa-xmark';
-            }
+            menuIcon.className = sidebar.classList.contains('collapsed') ? 'fa-solid fa-bars' : 'fa-solid fa-xmark';
         }
     </script>
 </body>

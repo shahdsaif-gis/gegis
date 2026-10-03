@@ -3,595 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GEGIS - Solar Power Site Suitability & System Sizing</title>
-   
-    <!-- إضافات الأمان والتحصين -->
+    <title>GEGIS - Solar Power Site Suitability</title>
 
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com;
-        style-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://fonts.googleapis.com;
-        font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
-        img-src 'self' data: blob: https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://server.arcgisonline.com;
-        connect-src 'self' https://*.tile.openstreetmap.org https://server.arcgisonline.com;
-        frame-ancestors 'none';
-    ">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta name="referrer" content="no-referrer-when-downgrade">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
 
     <style>
         * {
             box-sizing: border-box;
+        }
+        body, html {
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body, html {
-            width: 100%;
             height: 100%;
+            width: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
             overflow: hidden;
-            background: #0f172a;
         }
 
-        /* Map Container */
         #map {
             width: 100%;
             height: 100vh;
             z-index: 1;
         }
 
-        /* القائمة الجانبية بتصميم الكروت العصري */
+        /* القائمة الجانبية Floating Sidebar */
         .sidebar {
             position: absolute;
             top: 20px;
             right: 20px;
-            width: 390px;
-            max-width: 92%;
-            background: #0f172a;
-            border-radius: 18px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            z-index: 999;
-            overflow: hidden;
-            color: #f8fafc;
-            border: 1px solid #1e293b;
+            width: 380px;
+            max-height: calc(100vh - 40px);
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            z-index: 1000;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            transition: all 0.3s ease;
         }
 
         .sidebar-header-banner {
-            background: #1e293b;
-            padding: 16px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
         }
 
         .header-icon {
-            width: 40px;
-            height: 40px;
-            background: #0284c7;
+            width: 36px;
+            height: 36px;
+            background: rgba(234, 179, 8, 0.15);
+            color: #eab308;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            color: white;
+            font-size: 18px;
         }
 
-        .sidebar-content {
-            padding: 16px;
+        .section-box {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* 1. قسم الطبقات المكانية */
-        .layers-section {
-            background: #1e293b;
-            border-radius: 14px;
-            padding: 14px;
-            margin-bottom: 16px;
-            border: 1px solid #334155;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: bold;
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
             color: #38bdf8;
-            margin-bottom: 12px;
-        }
-
-        .layers-flex {
-            background: #0f172a;
-            padding: 8px 10px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
-
-        .layer-item {
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 6px;
+        }
+
+        .layer-options {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .layer-item {
             font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
             cursor: pointer;
-            user-select: none;
         }
 
-        .layer-item input[type="checkbox"] {
-            accent-color: #10b981;
-            cursor: pointer;
-            width: 15px;
-            height: 15px;
-        }
-
-        /* 2. كروت تحليلات وتفاصيل المنطقة */
         .analytics-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 16px;
+            gap: 8px;
         }
 
         .stat-card {
-            background: #1e293b;
-            padding: 12px 6px;
-            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+            padding: 8px;
             text-align: center;
-            border: 1px solid #334155;
-        }
-
-        .stat-icon {
-            font-size: 18px;
-            margin-bottom: 4px;
-            display: block;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .stat-title {
-            display: block;
-            font-size: 11px;
+            font-size: 10px;
             color: #94a3b8;
             margin-bottom: 4px;
         }
 
         .stat-value {
-            display: block;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
-            color: #ffffff;
+            color: #f8fafc;
         }
 
-        /* 3. كرت رسم وحساب المساحة والألواح */
-        .area-calculator-section {
-            background: #1e293b;
-            border-radius: 14px;
-            padding: 12px;
-            margin-bottom: 14px;
-            border: 1px solid #334155;
-        }
-
-        /* الموقع والإحداثيات */
-        .location-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 11px;
-            color: #cbd5e1;
-            margin-bottom: 14px;
-        }
-
-        /* 4. الأزرار السفلية */
-        .action-buttons-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .btn-main {
-            flex: 1.2;
-            background: #059669;
+        .btn {
+            background: #0284c7;
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 13px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            transition: 0.2s;
+            width: 100%;
+            transition: background 0.2s;
         }
 
-        .btn-main:hover {
-            background: #10b981;
+        .btn:hover {
+            background: #0369a1;
         }
 
-        .btn-sub {
-            flex: 1;
-            background: transparent;
-            color: #f8fafc;
-            border: 1px solid #475569;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: 0.2s;
+        .btn-success {
+            background: #059669;
+        }
+        .btn-success:hover {
+            background: #047857;
         }
 
-        .btn-sub:hover {
-            background: #1e293b;
+        .location-badge {
+            font-size: 11px;
+            color: #38bdf8;
+            text-align: center;
+            background: rgba(56, 189, 248, 0.1);
+            padding: 6px;
+            border-radius: 6px;
         }
-
-        /* اسم المطور أسفل القائمة الجانبية */
-
 
         .developer-footer {
             text-align: center;
-            padding-top: 10px;
-            border-top: 1px solid #334155;
-            font-size: 12px;
-            font-weight: bold;
+            font-size: 11px;
             color: #eab308;
+            font-weight: bold;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            letter-spacing: 0.5px;
         }
-        /* Modal Overlay مع تأثير الزجاج الضبابي Glassmorphism */
-        .modal-overlay {
+
+        /* زر الخطوط الثلاثة (منيو التلفون) */
+        .menu-toggle-btn {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        /* نافذة حاسبة الأحمال */
-        .sizing-card {
-            background: #0f172a;
+            background: #334155;
             color: #f8fafc;
-            width: 480px;
-            max-width: 100%;
-            padding: 25px;
-            border-radius: 14px;
-            border: 1px solid #334155;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
         }
 
-        .form-group {
-            margin-bottom: 12px;
-        }
+        /* التجاوب مع الهواتف والأجهزة الصغيرة */
+        @media (max-width: 600px) {
+            .menu-toggle-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
 
-        .form-group label {
-            display: block;
-            font-size: 12px;
-            color: #94a3b8;
-            margin-bottom: 5px;
-        }
+            .sidebar {
+                top: 12px !important;
+                right: 12px !important;
+                left: 12px !important;
+                width: auto !important;
+                max-width: 100% !important;
+            }
 
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 9px 12px;
-            background: #1e293b;
-            border: 1px solid #334155;
-            color: white;
-            border-radius: 8px;
-            font-size: 13px;
-        }
-
-        /* ورقة التقرير الملونة الجاهزة للطباعة */
-        #printable-report {
-            background: #ffffff !important;
-            color: #0f172a !important;
-            width: 800px;
-            max-width: 95%;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 40px;
-            border-radius: 14px;
-            position: relative;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-        }
-
-        @media print {
-            body * { visibility: hidden; }
-            #printable-report, #printable-report * { visibility: visible; }
-            #printable-report { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; box-shadow: none; }
-            .no-print { display: none !important; }
+            /* عند إغلاق المنيو تُخفى محتويات القائمة */
+            .sidebar.collapsed .sidebar-content {
+                display: none !important;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Main Map Container -->
+    <!-- حاوي الخريطة الأساسي -->
     <div id="map"></div>
 
-    <!-- Sidebar Layout -->
-    <div class="sidebar" id="sidebar">
-       
-        <!-- Header -->
+    <!-- القائمة الجانبية -->
+    <div class="sidebar collapsed" id="sidebar">
+        <!-- الشريط العلوي للقائمة -->
         <div class="sidebar-header-banner">
-            <div style="display:flex; align-items:center; gap:12px;">
+            <div style="display:flex; align-items:center; gap:10px;">
                 <div class="header-icon"><i class="fa-solid fa-solar-panel"></i></div>
                 <div>
-                    <h3 style="margin:0; font-size:16px; color:#eab308;" id="txt-app-title">GEGIS Analytics ☀️</h3>
-                    <p style="margin:0; font-size:11px; color:#94a3b8;" id="txt-app-subtitle">تقييم الملاءة المكانية والمنظومة</p>
+                    <h3 style="margin:0; font-size:15px; color:#eab308;" id="txt-app-title">GEGIS Analytics ☀️</h3>
+                    <p style="margin:0; font-size:10px; color:#94a3b8;" id="txt-app-subtitle">تقييم الملاءة المكانية والمنظومة</p>
                 </div>
             </div>
-            <button id="lang-btn" style="background:#eab308; color:#0f172a; border:none; padding:5px 10px; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="toggleLanguage()">EN</button>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button id="lang-btn" style="background:#eab308; color:#0f172a; border:none; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:11px; cursor:pointer;" onclick="toggleLanguage()">EN</button>
+                <!-- زر الثلاثة خطوط للموبايل -->
+                <button class="menu-toggle-btn" onclick="toggleSidebarMenu()" title="القائمة">
+                    <i class="fa-solid fa-bars" id="menu-icon"></i>
+                </button>
+            </div>
         </div>
-        <div class="sidebar-content">
 
-            <!-- 1. أُولَاً: قسم الطبقات المكانية -->
-            <div class="layers-section">
-                <div class="section-header">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <span id="txt-layers-title">الطبقات المكانية المتاحة</span>
-                </div>
-                <div class="layers-flex">
-                    <label class="layer-item">
-                        <input type="checkbox" id="layer-ghi" checked>
-                        <span id="txt-layer-ghi">إشعاع (GHI)</span>
-                    </label>
-                    <label class="layer-item">
-                        <input type="checkbox" id="layer-terrain">
-                        <span id="txt-layer-dem">تضاريس (DEM)</span>
-                    </label>
-                    <label class="layer-item">
-                        <input type="checkbox" id="layer-wind">
-                        <span id="txt-layer-wind">الرياح</span>
-                    </label>
+        <!-- محتوى القائمة الممكن إخفاؤه في الهواتف -->
+        <div class="sidebar-content" style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- الطبقات المكانية المتاحة -->
+            <div class="section-box">
+                <div class="section-title"><i class="fa-solid fa-layer-group"></i> <span id="txt-layers-title">الطبقات المكانية المتاحة</span></div>
+                <div class="layer-options">
+                    <label class="layer-item"><input type="checkbox" id="chk-ghi" checked> <span id="txt-layer-ghi">إشعاع (GHI)</span></label>
+                    <label class="layer-item"><input type="checkbox" id="chk-dem"> <span id="txt-layer-dem">تضاريس (DEM)</span></label>
+                    <label class="layer-item"><input type="checkbox" id="chk-wind"> <span id="txt-layer-wind">الرياح</span></label>
                 </div>
             </div>
 
-            <!-- 2. ثَانِيَاً: كروت تقييم الملاءة وتفاصيل المنطقة المكانيّة -->
+            <!-- الكروت الإحصائية -->
             <div class="analytics-grid">
                 <div class="stat-card">
-                    <i class="fa-solid fa-sun stat-icon" style="color:#eab308;"></i>
-                    <span class="stat-title" id="txt-stat-ghi">الإشعاع الشمسي</span>
-                    <span class="stat-value" id="val-ghi">2,174 <small style="font-size:9px;">kWh/m²</small></span>
+                    <div class="stat-title" id="txt-stat-ghi-title">الإشعاع الشمسي</div>
+                    <div class="stat-value" style="color:#eab308;" id="stat-ghi-val">2,174 <span style="font-size:9px;">kWh/m²</span></div>
                 </div>
                 <div class="stat-card">
-                    <i class="fa-solid fa-mountain stat-icon" style="color:#38bdf8;"></i>
-                    <span class="stat-title" id="txt-stat-dem">الارتفاع / الرياح</span>
-                    <span class="stat-value" id="val-dem">380m | 15km/h</span>
+                    <div class="stat-title" id="txt-stat-elev-title">الارتفاع / الرياح</div>
+                    <div class="stat-value" style="color:#38bdf8;" id="stat-elev-val">380m | 15km/h</div>
                 </div>
                 <div class="stat-card">
-                    <i class="fa-solid fa-award stat-icon" style="color:#10b981;"></i>
-                    <span class="stat-title" id="txt-stat-score">درجة الملاءة</span>
-                    <span class="stat-value" id="val-score" style="color:#10b981;">S1 (94%)</span>
+                    <div class="stat-title" id="txt-stat-suitability-title">درجة الملاءة</div>
+                    <div class="stat-value" style="color:#22c55e;" id="stat-suitability-val">S1 (94%)</div>
                 </div>
             </div>
 
-            <!-- 3. ثَالِثَاً: كرت حساب المساحة والألواح الشمسيّة -->
-            <div class="area-calculator-section">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <div style="font-size:13px; font-weight:bold; color:#eab308; display:flex; align-items:center; gap:6px;">
-                        <i class="fa-solid fa-draw-polygon"></i>
-                        <span id="txt-area-title">المساحة والألواح الشمسية</span>
-                    </div>
-                    <button id="draw-btn" onclick="toggleDrawTool()" style="background:#0284c7; color:white; border:none; padding:5px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">
-                        ✏️ رسم المضلع
-                    </button>
+            <!-- رسم المضلع والمساحة -->
+            <div class="section-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div class="section-title" style="margin:0;"><i class="fa-solid fa-vector-square"></i> <span id="txt-area-title">المساحة والألواح الشمسية</span></div>
+                    <button class="btn" style="width:auto; padding:4px 8px;" id="btn-draw-polygon"><i class="fa-solid fa-pen"></i> <span id="txt-btn-draw">رسم المضلع</span></button>
                 </div>
-
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; background:#0f172a; padding:10px; border-radius:10px; font-size:12px;">
-                    <div>
-                        <span style="color:#94a3b8; display:block; font-size:10px;" id="txt-lbl-area">المساحة الكلية:</span>
-                        <strong id="area-val" style="color:#ffffff;">0.00 m²</strong>
-                    </div>
-                    <div>
-                        <span style="color:#94a3b8; display:block; font-size:10px;" id="txt-lbl-panels">عدد الألواح (400W):</span>
-                        <strong id="panels-val" style="color:#10b981;">0 لوح</strong>
-                    </div>
-                    <div style="grid-column: span 2; border-top:1px dashed #334155; padding-top:6px; margin-top:2px;">
-                        <span style="color:#94a3b8; font-size:11px;" id="txt-lbl-kwp">القدرة الإنتاجية المتوقعة:</span>
-                        <strong id="kwp-val" style="color:#38bdf8; font-size:13px; float:left;">0.00 kWp</strong>
-                    </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:11px; background:rgba(15,23,42,0.4); padding:8px; border-radius:6px;">
+                    <div><span style="color:#94a3b8;" id="txt-total-area">المساحة الكلية:</span> <strong id="val-area">0.00 m²</strong></div>
+                    <div><span style="color:#94a3b8;" id="txt-panel-count">عدد الألواح (400W):</span> <strong id="val-panels">0 لوح</strong></div>
+                    <div style="grid-column: span 2; margin-top:4px;"><span style="color:#94a3b8;" id="txt-est-power">القدرة الإنتاجية المتوقعة:</span> <strong id="val-power" style="color:#38bdf8;">0.00 kWp</strong></div>
                 </div>
             </div>
 
-            <!-- 4. موقع المنطقة للإحداثيات -->
-            <div class="location-info">
-                <i class="fa-solid fa-location-dot" style="color:#38bdf8;"></i>
-                <span id="site-location">الخرطوم - محلية الخرطوم [15.5007, 32.5599]</span>
+            <!-- الموقع الحالي -->
+            <div class="location-badge" id="val-location-text">
+                <i class="fa-solid fa-location-dot"></i> الخرطوم - محلية الخرطوم [15.5007, 32.5599]
             </div>
 
-            <!-- 5. الأزرار السفلية المزدوجة -->
-            <div class="action-buttons-group">
-                <button class="btn-sub" id="btn-sizing-modal" onclick="openSizingModal()">
-                    <i class="fa-solid fa-circle-info"></i> <span id="txt-btn-sizing">حاسبة الأحمال</span>
-                </button>
-                <button class="btn-main" id="btn-report-modal" onclick="openReportModal()">
-                    <i class="fa-solid fa-paper-plane"></i> <span id="txt-btn-report">تصدير التقرير</span>
-                </button>
+            <!-- أزرار الإجراءات -->
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-success" id="btn-export-report"><i class="fa-solid fa-file-pdf"></i> <span id="txt-btn-export">تصدير التقرير</span></button>
+                <button class="btn" style="background:#1e293b;" id="btn-load-calc"><i class="fa-solid fa-calculator"></i> <span id="txt-btn-calc">حاسبة الأحمال</span></button>
             </div>
 
-            <!-- 6. اسم المطور أسفل الكرت -->
-
-
+            <!-- المطور باللغة الإنجليزية -->
             <div class="developer-footer" id="txt-developer-name">
-                تطوير: م. شهد سيف
+                Designed & Developed by Shahd Saif
             </div>
         </div>
     </div>
 
-    <!-- 1. System Sizing Modal (حاسبة الأحمال) -->
-    <div class="modal-overlay" id="sizing-modal">
-        <div class="sizing-card">
-            <h3 style="color:#38bdf8; margin-bottom:15px; border-bottom:1px solid #334155; padding-bottom:8px;">
-                ⚡ حاسبة الأحمال ومكونات المنظومة الشمسيّة
-            </h3>
-            <div class="form-group">
-                <label>إجمالي الأحمال الكهربائية الكلية (Watt):</label>
-                <input type="number" id="load-watts" value="5000" min="1" max="100000" autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label>عدد ساعات التشغيل الليلية (ساعات):</label>
-                <input type="number" id="night-hours" value="8" min="1" max="24" autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label>نوع البطاريات المفضل:</label>
-                <select id="battery-type">
-                    <option value="Lithium LiFePO4">ليثيوم (Lithium LiFePO4)</option>
-                    <option value="Gel Battery">بطاريات جل (Gel Deep Cycle)</option>
-                    <option value="Flooded Lead-Acid">بطاريات سائلة (Flooded Lead-Acid)</option>
-                </select>
-            </div>
-            <div style="display:flex; gap:10px; margin-top:20px;">
-                <button class="btn-main" style="width:100%;" onclick="calculateSystemSizing()">حساب المكونات ✅</button>
-                <button class="btn-sub" style="width:100%;" onclick="closeSizingModal()">إلغاء</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 2. Printable PDF Report Modal (التقرير الملون) -->
-    <div class="modal-overlay" id="report-modal">
-        <div id="printable-report">
-           
-            <!-- العلامة المائية الشفافة لشعار GEGIS -->
-            <div style="position:absolute; top:45%; left:50%; transform:translate(-50%, -50%); opacity:0.04; pointer-events:none; z-index:0;">
-                <h1 style="font-size:160px; font-weight:900; color:#0f172a; margin:0;">GEGIS</h1>
-            </div>
-
-            <div style="position:relative; z-index:1;">
-               
-                <!-- Report Header -->
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #0284c7; padding-bottom:12px; margin-bottom:20px;">
-                    <div>
-                        <h1 style="margin:0; color:#eab308; font-size:24px;">GEGIS ☀️</h1>
-                        <p style="margin:2px 0 0 0; color:#64748b; font-size:12px;">Solar Engineering Consultancy Report</p>
-                    </div>
-                    <div style="text-align:left; font-size:12px; color:#475569;">
-                        <p style="margin:2px 0;"><strong>المرجع:</strong> <span id="rep-id">GEGIS-2026-0894</span></p>
-                        <p style="margin:2px 0;"><strong>التاريخ:</strong> <span id="rep-date">2026-10-03</span></p>
-                        <p style="margin:2px 0;"><strong>إعداد المصمم:</strong> م. شهد سيف</p>
-                    </div>
-                </div>
-
-                <!-- Section 1: Spatial Analytics -->
-                <div style="background:#f8fafc; border-right:4px solid #0284c7; padding:15px; border-radius:6px; margin-bottom:18px;">
-                    <h3 style="margin:0 0 10px 0; color:#0284c7; font-size:15px;">📍 أولاً: التحليل الجغرافي والمكاني للموقع</h3>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:13px;">
-                        <div><strong>الإحداثيات الجغرافية:</strong> <span id="rep-coords">[15.5007, 32.5599]</span></div>
-                        <div><strong>الارتفاع عن البحر:</strong> <span id="rep-elev">380m</span></div>
-                        <div><strong>الإشعاع الشمسي (GHI):</strong> <span id="rep-ghi">2,174 kWh/m²/yr</span></div>
-                        <div><strong>سرعة الرياح (الهبات):</strong> <span id="rep-wind">15 km/h (28 km/h)</span></div>
-                    </div>
-                    <div style="margin-top:10px; background:#e0f2fe; padding:8px 12px; border-radius:5px; font-size:13px; color:#0369a1;">
-                        <strong>🎯 درجة الملاءة المكانية (MCDA):</strong> <span id="rep-score" style="font-weight:bold; color:#10b981;">S1 - 94% (ممتاز جداً)</span>
-                    </div>
-                </div>
-
-                <!-- Section 2: Area & Solar Panels -->
-                <div style="background:#f8fafc; border-right:4px solid #10b981; padding:15px; border-radius:6px; margin-bottom:18px;">
-                    <h3 style="margin:0 0 10px 0; color:#10b981; font-size:15px;">📐 ثانياً: تقييم المساحات وسعة الألواح</h3>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:13px;">
-                        <div><strong>المساحة المحسوبة:</strong> <span id="rep-area">0.00 m²</span></div>
-                        <div><strong>عدد الألواح المتوقع (400W):</strong> <span id="rep-panels">0 لوح</span></div>
-                        <div><strong>القدرة الإجمالية:</strong> <span id="rep-kwp">0.00 kWp</span></div>
-                        <div><strong>تأثير الظلال المتوقع:</strong> <span id="rep-shadow">منخفض جداً (< 10%)</span></div>
-                    </div>
-                </div>
-
-                <!-- Section 3: System Sizing Table -->
-                <div style="margin-bottom:20px;">
-                    <h3 style="margin:0 0 10px 0; color:#0f172a; font-size:15px;">⚡ ثالثاً: حاسبة الأحمال ومكونات المنظومة</h3>
-                    <table style="width:100%; border-collapse:collapse; font-size:12px; text-align:right;">
-                        <thead>
-                            <tr style="background:#0f172a; color:#ffffff;">
-                                <th style="padding:8px; border:1px solid #334155;">المكون الهندسي</th>
-                                <th style="padding:8px; border:1px solid #334155;">المواصفة المحسوبة</th>
-                                <th style="padding:8px; border:1px solid #334155;">التوصية الهندسية ونوع التقنية</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="padding:8px; border:1px solid #e2e8f0; background:#f8fafc;">إجمالي الأحمال الكلية</td>
-                                <td style="padding:8px; border:1px solid #e2e8f0;" id="rep-load">5.0 kW</td>
-                                <td style="padding:8px; border:1px solid #e2e8f0;">أحمال تشغيلية مستمرة</td>
-                            </tr>
-                            <tr>
-                                <td style="padding:8px; border:1px solid #e2e8f0; background:#f8fafc;">محول الطاقة (Inverter)</td>
-                                <td style="padding:8px; border:1px solid #e2e8f0;" id="rep-inverter">6.25 kW</td>
-                                <td style="padding:8px; border:1px solid #e2e8f0;">Hybrid Pure Sine Wave (مع معامل أمان 1.25)</td>
-                            </tr>
-                            <tr>
-                                <td style="padding:8px; border:1px solid #e2e8f0; background:#f8fafc;">بنك البطاريات المطلوب</td>
-                                <td style="padding:8px; border:1px solid #e2e8f0;" id="rep-battery">40.0 kWh (48V / 833Ah)</td>
-                                <td style="padding:8px; border:1px solid #e2e8f0;" id="rep-batt-type">Lithium Iron Phosphate (LiFePO4)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Footer Action Buttons -->
-                <div class="no-print" style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; border-top:1px solid #e2e8f0; padding-top:15px;">
-                    <button onclick="window.print()" style="background:#0f172a; color:white; border:none; padding:8px 18px; border-radius:6px; cursor:pointer; font-weight:bold;">🖨️ طباعة التقرير</button>
-                    <button onclick="closeReportModal()" style="background:#64748b; color:white; border:none; padding:8px 18px; border-radius:6px; cursor:pointer;">إغلاق</button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- Leaflet JS -->
+    <!-- استدعاء المكتبات والبرامج النصية في نهاية الملف -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-   
-    <!-- Application Logic Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <script src="app.js"></script>
 
-    <!-- Modal Event Handler Helpers -->
+    <!-- كود التحكم بتصغير وتكبير المنيو للهاتف -->
     <script>
-        function openSizingModal() {
-            document.getElementById('sizing-modal').style.display = 'flex';
-        }
-        function closeSizingModal() {
-            document.getElementById('sizing-modal').style.display = 'none';
-        }
-        function openReportModal() {
-            document.getElementById('report-modal').style.display = 'flex';
-        }
-        function closeReportModal() {
-            document.getElementById('report-modal').style.display = 'none';
-        }
-
-        function calculateSystemSizing() {
-            const watts = parseFloat(document.getElementById('load-watts').value) || 5000;
-            const nightHours = parseFloat(document.getElementById('night-hours').value) || 8;
-            const battType = document.getElementById('battery-type').value;
-
-            const kw = (watts / 1000).toFixed(2);
-            const inverterKw = (kw * 1.25).toFixed(2);
-            const batteryKwh = (kw * nightHours).toFixed(1);
-            const batteryAh = Math.round((batteryKwh * 1000) / 48);
-
-            document.getElementById('rep-load').innerText = kw + ' kW';
-            document.getElementById('rep-inverter').innerText = inverterKw + ' kW';
-            document.getElementById('rep-battery').innerText = batteryKwh + ' kWh (48V / ' + batteryAh + 'Ah)';
-            document.getElementById('rep-batt-type').innerText = battType;
-
-            alert('تم تحديث أحمال ومكونات المنظومة في التقرير الفني بنجاح! ✅');
-            closeSizingModal();
+        function toggleSidebarMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const menuIcon = document.getElementById('menu-icon');
+           
+            sidebar.classList.toggle('collapsed');
+           
+            if (sidebar.classList.contains('collapsed')) {
+                menuIcon.className = 'fa-solid fa-bars';
+            } else {
+                menuIcon.className = 'fa-solid fa-xmark';
+            }
         }
     </script>
 </body>
 </html>
+

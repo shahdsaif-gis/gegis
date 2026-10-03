@@ -53,67 +53,56 @@
         }
     };
 
-    /**
-     * دالة تطهير النصوص لمنع هجمات XSS
-     */
     function sanitizeHTML(str) {
         if (typeof str !== 'string') return str;
         return str.replace(/[&<>"']/g, function (match) {
-            const escapeChars = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#x27;'
-            };
+            const escapeChars = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;' };
             return escapeChars[match];
         });
     }
 
-    /**
-     * تهيئة الخريطة مع تفعيل التكبير الرقمي العميق
-     */
     function initMap() {
         try {
             const mapContainer = document.getElementById('map');
             if (!mapContainer) return;
 
-            // 1. تهيئة الخريطة مع رفع حد التكبير الكلي لرؤية المباني والصغائر (4x4m)
+            // 1. تهيئة الخريطة بحد تكبير عميق وإلغاء التحكم الافتراضي بالتكبير
             map = L.map('map', {
                 center: [15.5007, 32.5599],
                 zoom: 14,
                 maxZoom: 22,
-                zoomControl: true
+                zoomControl: false
             });
 
-            // 2. خريطة الأقمار الاصطناعية (Esri Satellite) مع التكبير الرقمي
+            // 2. إرجاع زر التكبير والتصغير لأسفل اليسار لضمان عدم غطاء السايدبار عليه
+            L.control.zoom({ position: 'bottomleft' }).addTo(map);
+
+            // 3. الخريطة الفضائية Esri World Imagery
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 maxNativeZoom: 19,
                 maxZoom: 22,
                 attribution: 'Tiles &copy; Esri'
             }).addTo(map);
 
-            // 3. طبقة التضاريس والظلال
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}', {
                 maxNativeZoom: 19,
                 maxZoom: 22,
-                opacity: 0.35,
-                attribution: 'Esri Hillshade'
+                opacity: 0.35
             }).addTo(map);
 
-            // 4. طبقة الأسماء والحدود الشفافة فوق القمر الاصطناعي
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
                 maxNativeZoom: 19,
                 maxZoom: 22
             }).addTo(map);
 
-            // 5. طبقة الرسم وأداة المضلع
             drawnItems = new L.FeatureGroup();
             map.addLayer(drawnItems);
 
             polygonDrawer = new L.Draw.Polygon(map);
 
+            // 4. وضع شريط أداة الرسم المباشر في أسفل اليسار بجانب أزرار التكبير
             const drawControl = new L.Control.Draw({
+                position: 'bottomleft',
                 draw: {
                     polygon: true,
                     polyline: false,
@@ -140,20 +129,11 @@
         }
     }
 
-    /**
-     * تفعيل زر رسم المضلع المباشر
-     */
     window.startPolygonDraw = function () {
-        if (polygonDrawer) {
-            polygonDrawer.enable();
-        } else if (map) {
-            new L.Draw.Polygon(map).enable();
-        }
+        if (polygonDrawer) polygonDrawer.enable();
+        else if (map) new L.Draw.Polygon(map).enable();
     };
 
-    /**
-     * حساب المساحة والألواح وعرض زر OK والملصق الثابت فوق الرسم
-     */
     function calculateAreaAndPanels(layer) {
         try {
             const latLngs = layer.getLatLngs()[0];
@@ -165,7 +145,6 @@
             const panelCount = Math.floor(areaInMeters / areaPerPanel);
             const totalCapacityKWp = ((panelCount * 400) / 1000).toFixed(2);
 
-            // تحديث القيم في القائمة الجانبية
             const valArea = document.getElementById('val-area');
             const valPanels = document.getElementById('val-panels');
             const valPower = document.getElementById('val-power');
@@ -174,7 +153,6 @@
             if (valPanels) valPanels.innerText = sanitizeHTML(panelCount + ' ' + (currentLanguage === 'ar' ? 'لوح' : 'Panels'));
             if (valPower) valPower.innerText = sanitizeHTML(totalCapacityKWp + ' kWp');
 
-            // تحديث القيم في التقرير الفني
             const repArea = document.getElementById('rep-area');
             const repPanels = document.getElementById('rep-panels');
             const repKwp = document.getElementById('rep-kwp');
@@ -183,7 +161,7 @@
             if (repPanels) repPanels.innerText = panelCount + ' لوح';
             if (repKwp) repKwp.innerText = totalCapacityKWp + ' kWp';
 
-            // إنشاء نافذة منبثقة فوق المضلع تحتوي على النتائج وزر OK
+            // نافذة منبثقة بزر OK فوق الرسم
             const popupContent = `
                 <div style="text-align:center; font-family:sans-serif; padding:6px; color:#0f172a; min-width:160px;">
                     <h4 style="margin:0 0 6px 0; color:#0284c7; font-size:13px; font-weight:bold;">📐 نتائج المساحة</h4>
@@ -198,7 +176,6 @@
 
             layer.bindPopup(popupContent, { closeButton: false }).openPopup();
 
-            // عند الضغط على زر OK يتم تثبيت ملصق دائم فوق المضلع دون الحاجة للرجوع للقائمة
             setTimeout(() => {
                 const okBtn = document.getElementById('btn-ok-confirm');
                 if (okBtn) {
@@ -218,25 +195,20 @@
         }
     }
 
-    // --- دوال التحكم بالنوافذ المنبثقة (الأحمال والتقرير) ---
     window.openSizingModal = function () {
-        const modal = document.getElementById('sizing-modal');
-        if (modal) modal.style.display = 'flex';
+        document.getElementById('sizing-modal').style.display = 'flex';
     };
 
     window.closeSizingModal = function () {
-        const modal = document.getElementById('sizing-modal');
-        if (modal) modal.style.display = 'none';
+        document.getElementById('sizing-modal').style.display = 'none';
     };
 
     window.openReportModal = function () {
-        const modal = document.getElementById('report-modal');
-        if (modal) modal.style.display = 'flex';
+        document.getElementById('report-modal').style.display = 'flex';
     };
 
     window.closeReportModal = function () {
-        const modal = document.getElementById('report-modal');
-        if (modal) modal.style.display = 'none';
+        document.getElementById('report-modal').style.display = 'none';
     };
 
     window.calculateSystemSizing = function () {
@@ -248,25 +220,19 @@
         const batteryKwh = (kw * nightHours).toFixed(1);
         const batteryAh = Math.round((batteryKwh * 1000) / 48);
 
-        const repLoad = document.getElementById('rep-load');
-        const repInverter = document.getElementById('rep-inverter');
-        const repBattery = document.getElementById('rep-battery');
-
-        if (repLoad) repLoad.innerText = kw + ' kW';
-        if (repInverter) repInverter.innerText = inverterKw + ' kW';
-        if (repBattery) repBattery.innerText = batteryKwh + ' kWh (48V / ' + batteryAh + 'Ah)';
+        document.getElementById('rep-load').innerText = kw + ' kW';
+        document.getElementById('rep-inverter').innerText = inverterKw + ' kW';
+        document.getElementById('rep-battery').innerText = batteryKwh + ' kWh (48V / ' + batteryAh + 'Ah)';
 
         alert('تم حساب الأحمال وتحديث التقرير الهندسي بنجاح! ✅');
         window.closeSizingModal();
     };
 
-    /**
-     * دالة تبديل اللغة
-     */
     window.toggleLanguage = function () {
+
+
         currentLanguage = (currentLanguage === 'ar') ? 'en' : 'ar';
         const t = translations[currentLanguage];
-
         document.documentElement.dir = (currentLanguage === 'ar') ? 'rtl' : 'ltr';
         document.documentElement.lang = currentLanguage;
        

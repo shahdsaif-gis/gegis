@@ -1,76 +1,580 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GEGIS - Solar Site Suitability Platform</title>
+    <title>GEGIS - Solar Power Site Suitability & System Sizing</title>
    
+    <!-- 1. إضافات الأمان والتحصين (Security & Protection Headers) -->
+    <!-- Content Security Policy: حظر الحقن الخارجي والسماح بالنطاقات الموثوقة فقط -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com;
+        style-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://fonts.googleapis.com;
+        font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
+        img-src 'self' data: blob: https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://server.arcgisonline.com;
+        connect-src 'self' https://*.tile.openstreetmap.org https://server.arcgisonline.com;
+        frame-ancestors 'none';
+    ">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css">
-   
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #0f172a;
+        }
+
+        /* Map Container */
+        #map {
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        /* القائمة الجانبية بتصميم الكروت العصري */
+        .sidebar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 390px;
+            max-width: 92%;
+            background: #0f172a;
+            border-radius: 18px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            z-index: 999;
+            overflow: hidden;
+            color: #f8fafc;
+            border: 1px solid #1e293b;
+        }
+
+        .sidebar-header-banner {
+            background: #1e293b;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: #0284c7;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .sidebar-content {
+            padding: 16px;
+        }
+
+        /* 1. قسم الطبقات المكانية (في الأعلى أولاً) */
+        .layers-section {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 16px;
+            border: 1px solid #334155;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #38bdf8;
+            margin-bottom: 12px;
+        }
+
+        .layers-flex {
+            background: #0f172a;
+            padding: 8px 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .layer-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .layer-item input[type="checkbox"] {
+            accent-color: #10b981;
+            cursor: pointer;
+            width: 15px;
+            height: 15px;
+        }
+
+        /* 2. كروت تحليلات وتفاصيل المنطقة */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: #1e293b;
+            padding: 12px 6px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+
+        .stat-icon {
+            font-size: 18px;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .stat-title {
+            display: block;
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        /* 3. كرت رسم وحساب المساحة والألواح */
+        .area-calculator-section {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 14px;
+            border: 1px solid #334155;
+        }
+
+        /* الموقع والإحداثيات */
+        .location-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #cbd5e1;
+            margin-bottom: 14px;
+        }
+
+        /* 4. الأزرار السفلية */
+        .action-buttons-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-main {
+            flex: 1.2;
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .btn-main:hover {
+            background: #10b981;
+        }
+
+        .btn-sub {
+            flex: 1;
+            background: transparent;
+            color: #f8fafc;
+            border: 1px solid #475569;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .btn-sub:hover {
+            background: #1e293b;
+        }
+
+        /* Modal Overlay مع تأثير الزجاج الضبابي Glassmorphism */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* نافذة حاسبة الأحمال */
+        .sizing-card {
+            background: #0f172a;
+            color: #f8fafc;
+            width: 480px;
+            max-width: 100%;
+            padding: 25px;
+            border-radius: 14px;
+            border: 1px solid #334155;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 9px 12px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: white;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        /* ورقة التقرير الملونة الجاهزة للطباعة */
+        #printable-report {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            width: 800px;
+            max-width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 40px;
+            border-radius: 14px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printable-report, #printable-report * { visibility: visible; }
+            #printable-report { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; box-shadow: none; }
+            .no-print { display: none !important; }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- زر القائمة للتلفون -->
-    <button id="toggle-btn" onclick="toggleSidebar()">☰</button>
+    <!-- Main Map Container -->
+    <div id="map"></div>
 
-    <!-- Sidebar Control Panel -->
-    <div id="sidebar">
-        <!-- Language Switcher Header -->
-        <div class="header-top">
-            <h2 id="app-title">GEGIS ☀️</h2>
-            <button id="lang-btn" onclick="toggleLanguage()">العربية</button>
-        </div>
+    <!-- Sidebar Layout -->
+    <div class="sidebar" id="sidebar">
        
-        <p class="subtitle" id="app-subtitle">Solar Power Site Suitability & Solar Radiation Analysis</p>
-        <hr>
-
-        <!-- Layer Control Section -->
-        <div class="section">
-            <h3 id="layers-title">Spatial Layers</h3>
-            <label class="checkbox-container">
-                <input type="checkbox" id="layer-ghi" checked>
-                <span id="label-ghi">Global Horizontal Irradiance (GHI)</span>
-            </label>
-            <label class="checkbox-container">
-                <input type="checkbox" id="layer-terrain" checked>
-                <span id="label-terrain">Terrain & Slope Constraints</span>
-            </label>
-            <label class="checkbox-container">
-                <input type="checkbox" id="layer-grid" checked>
-                <span id="label-grid">Power Grid & Infrastructure</span>
-            </label>
-            <label class="checkbox-container">
-                <input type="checkbox" id="layer-sites" checked>
-                <span id="label-sites">Optimal Solar Farm Sites</span>
-            </label>
-        </div>
-
-        <!-- Info & Analysis Panel -->
-        <div class="section info-card">
-            <h3 id="info-title">Site Details</h3>
-            <div id="site-info">
-                <p id="click-prompt">Click anywhere on the map to analyze solar suitability and radiation.</p>
+        <!-- Header -->
+        <div class="sidebar-header-banner">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="header-icon"><i class="fa-solid fa-solar-panel"></i></div>
+                <div>
+                    <h3 style="margin:0; font-size:16px; color:#ffffff;">GEGIS Analytics ☀️</h3>
+                    <p style="margin:0; font-size:11px; color:#94a3b8;">تقييم الملاءة المكانية والمنظومة</p>
+                </div>
             </div>
+            <button style="background:#eab308; color:#0f172a; border:none; padding:5px 10px; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="toggleLanguage()">EN</button>
         </div>
 
-        <!-- Footer -->
-        <div class="footer">
-            <p><span id="designed-by">Designed & Developed by:</span> <strong>Shahd Saif</strong></p>
-            <p>© 2026 GEGIS. All rights reserved.</p>
+        <div class="sidebar-content">
+
+            <!-- 1. أُولَاً: قسم الطبقات المكانية (Layers First) -->
+            <div class="layers-section">
+                <div class="section-header">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>الطبقات المكانية المتاحة</span>
+                </div>
+                <div class="layers-flex">
+                    <label class="layer-item">
+                        <input type="checkbox" id="layer-ghi" checked>
+                        <span>إشعاع (GHI)</span>
+                    </label>
+                    <label class="layer-item">
+                        <input type="checkbox" id="layer-terrain">
+                        <span>تضاريس (DEM)</span>
+                    </label>
+                    <label class="layer-item">
+                        <input type="checkbox" id="layer-wind">
+                        <span>الرياح</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 2. ثَانِيَاً: كروت تقييم الملاءة وتفاصيل المنطقة المكانيّة -->
+            <div class="analytics-grid">
+                <div class="stat-card">
+                    <i class="fa-solid fa-sun stat-icon" style="color:#eab308;"></i>
+                    <span class="stat-title">الإشعاع الشمسي</span>
+                    <span class="stat-value" id="val-ghi">2,174 <small style="font-size:9px;">kWh/m²</small></span>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-mountain stat-icon" style="color:#38bdf8;"></i>
+                    <span class="stat-title">الارتفاع / الرياح</span>
+                    <span class="stat-value" id="val-dem">380m | 15km/h</span>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-award stat-icon" style="color:#10b981;"></i>
+                    <span class="stat-title">درجة الملاءة</span>
+                    <span class="stat-value" id="val-score" style="color:#10b981;">S1 (94%)</span>
+                </div>
+            </div>
+
+            <!-- 3. ثَالِثَاً: كرت حساب المساحة والألواح الشمسيّة -->
+            <div class="area-calculator-section">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div style="font-size:13px; font-weight:bold; color:#eab308; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-draw-polygon"></i>
+                        <span>المساحة والألواح الشمسية</span>
+                    </div>
+                    <button id="draw-btn" onclick="toggleDrawTool()" style="background:#0284c7; color:white; border:none; padding:5px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">
+                        ✏️ رسم المضلع
+                    </button>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; background:#0f172a; padding:10px; border-radius:10px; font-size:12px;">
+                    <div>
+                        <span style="color:#94a3b8; display:block; font-size:10px;">المساحة الكلية:</span>
+                        <strong id="area-val" style="color:#ffffff;">0.00 m²</strong>
+                    </div>
+                    <div>
+                        <span style="color:#94a3b8; display:block; font-size:10px;">عدد الألواح (400W):</span>
+                        <strong id="panels-val" style="color:#10b981;">0 لوح</strong>
+                    </div>
+                    <div style="grid-column: span 2; border-top:1px dashed #334155; padding-top:6px; margin-top:2px;">
+                        <span style="color:#94a3b8; font-size:11px;">القدرة الإنتاجية المتوقعة:</span>
+                        <strong id="kwp-val" style="color:#38bdf8; font-size:13px; float:left;">0.00 kWp</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. موقع المنطقة للإحداثيات -->
+            <div class="location-info">
+                <i class="fa-solid fa-location-dot" style="color:#38bdf8;"></i>
+                <span id="site-location">الخرطوم - محلية الخرطوم [15.5007, 32.5599]</span>
+            </div>
+
+            <!-- 5. الأزرار السفلية المزدوجة -->
+            <div class="action-buttons-group">
+                <button class="btn-sub" onclick="openSizingModal()">
+                    <i class="fa-solid fa-circle-info"></i> حاسبة الأحمال
+                </button>
+                <button class="btn-main" onclick="openReportModal()">
+                    <i class="fa-solid fa-paper-plane"></i> تصدير التقرير
+                </button>
+            </div>
+
         </div>
     </div>
 
-    <!-- Map Container -->
-    <div id="map"></div>
+    <!-- 1. System Sizing Modal (حاسبة الأحمال) -->
+    <div class="modal-overlay" id="sizing-modal">
+        <div class="sizing-card">
+            <h3 style="color:#38bdf8; margin-bottom:15px; border-bottom:1px solid #334155; padding-bottom:8px;">
+                ⚡ حاسبة الأحمال ومكونات النظام الشمسي
+            </h3>
+            <div class="form-group">
+                <label>إجمالي الأحمال الكهربائية الكلية (Watt):</label>
+                <input type="number" id="load-watts" value="5000" min="1" max="100000" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>عدد ساعات التشغيل الليلية (ساعات):</label>
+                <input type="number" id="night-hours" value="8" min="1" max="24" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>نوع البطاريات المفضل:</label>
+                <select id="battery-type">
+                    <option value="Lithium LiFePO4">ليثيوم (Lithium LiFePO4)</option>
+                    <option value="Gel Battery">بطاريات جل (Gel Deep Cycle)</option>
+                    <option value="Flooded Lead-Acid">بطاريات سائلة (Flooded Lead-Acid)</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn-main" style="width:100%;" onclick="calculateSystemSizing()">حساب المكونات ✅</button>
+                <button class="btn-sub" style="width:100%;" onclick="closeSizingModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Printable PDF Report Modal (التقرير الملون) -->
+    <div class="modal-overlay" id="report-modal">
+        <div id="printable-report">
+           
+            <!-- العلامة المائية الشفافة لشعار GEGIS -->
+            <div style="position:absolute; top:45%; left:50%; transform:translate(-50%, -50%); opacity:0.04; pointer-events:none; z-index:0;">
+                <h1 style="font-size:160px; font-weight:900; color:#0f172a; margin:0;">GEGIS</h1>
+            </div>
+
+            <div style="position:relative; z-index:1;">
+               
+                <!-- Report Header -->
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #0284c7; padding-bottom:12px; margin-bottom:20px;">
+                    <div>
+                        <h1 style="margin:0; color:#0f172a; font-size:24px;">GEGIS ☀️</h1>
+                        <p style="margin:2px 0 0 0; color:#64748b; font-size:12px;">Solar Engineering Consultancy Report</p>
+                    </div>
+                    <div style="text-align:left; font-size:12px; color:#475569;">
+                        <p style="margin:2px 0;"><strong>المرجع:</strong> <span id="rep-id">GEGIS-2026-0894</span></p>
+                        <p style="margin:2px 0;"><strong>التاريخ:</strong> <span id="rep-date">2026-10-03</span></p>
+                        <p style="margin:2px 0;"><strong>إعداد المصمم:</strong> م. شهد سيف</p>
+                    </div>
+                </div>
+
+                <!-- Section 1: Spatial Analytics -->
+                <div style="background:#f8fafc; border-right:4px solid #0284c7; padding:15px; border-radius:6px; margin-bottom:18px;">
+                    <h3 style="margin:0 0 10px 0; color:#0284c7; font-size:15px;">📍 أولاً: التحليل الجغرافي والمكاني للموقع</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:13px;">
+                        <div><strong>الإحداثيات الجغرافية:</strong> <span id="rep-coords">[15.5007, 32.5599]</span></div>
+                        <div><strong>الارتفاع عن البحر:</strong> <span id="rep-elev">380m</span></div>
+                        <div><strong>الإشعاع الشمسي (GHI):</strong> <span id="rep-ghi">2,174 kWh/m²/yr</span></div>
+                        <div><strong>سرعة الرياح (الهبات):</strong> <span id="rep-wind">15 km/h (28 km/h)</span></div>
+                    </div>
+                    <div style="margin-top:10px; background:#e0f2fe; padding:8px 12px; border-radius:5px; font-size:13px; color:#0369a1;">
+                        <strong>🎯 درجة الملاءة المكانية (MCDA):</strong> <span id="rep-score" style="font-weight:bold; color:#10b981;">S1 - 94% (ممتاز جداً)</span>
+                    </div>
+                </div>
+
+                <!-- Section 2: Area & Solar Panels -->
+                <div style="background:#f8fafc; border-right:4px solid #10b981; padding:15px; border-radius:6px; margin-bottom:18px;">
+                    <h3 style="margin:0 0 10px 0; color:#10b981; font-size:15px;">📐 ثانياً: تقييم المساحات وسعة الألواح</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:13px;">
+                        <div><strong>المساحة المحسوبة:</strong> <span id="rep-area">0.00 m²</span></div>
+                        <div><strong>عدد الألواح المتوقع (400W):</strong> <span id="rep-panels">0 لوح</span></div>
+                        <div><strong>القدرة الإجمالية:</strong> <span id="rep-kwp">0.00 kWp</span></div>
+                        <div><strong>تأثير الظلال المتوقع:</strong> <span id="rep-shadow">منخفض جداً (< 10%)</span></div>
+                    </div>
+                </div>
+
+                <!-- Section 3: System Sizing Table -->
+                <div style="margin-bottom:20px;">
+                    <h3 style="margin:0 0 10px 0; color:#0f172a; font-size:15px;">⚡ ثالثاً: حاسبة الأحمال ومكونات المنظومة</h3>
+                    <table style="width:100%; border-collapse:collapse; font-size:12px; text-align:right;">
+                        <thead>
+                            <tr style="background:#0f172a; color:#ffffff;">
+                                <th style="padding:8px; border:1px solid #334155;">المكون الهندسي</th>
+                                <th style="padding:8px; border:1px solid #334155;">المواصفة المحسوبة</th>
+                                <th style="padding:8px; border:1px solid #334155;">التوصية الهندسية ونوع التقنية</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding:8px; border:1px solid #e2e8f0; background:#f8fafc;">إجمالي الأحمال الكلية</td>
+                                <td style="padding:8px; border:1px solid #e2e8f0;" id="rep-load">5.0 kW</td>
+                                <td style="padding:8px; border:1px solid #e2e8f0;">أحمال تشغيلية مستمرة</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; border:1px solid #e2e8f0; background:#f8fafc;">محول الطاقة (Inverter)</td>
+                                <td style="padding:8px; border:1px solid #e2e8f0;" id="rep-inverter">6.25 kW</td>
+                                <td style="padding:8px; border:1px solid #e2e8f0;">Hybrid Pure Sine Wave (مع معامل أمان 1.25)</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; border:1px solid #e2e8f0; background:#f8fafc;">بنك البطاريات المطلوب</td>
+                                <td style="padding:8px; border:1px solid #e2e8f0;" id="rep-battery">40.0 kWh (48V / 833Ah)</td>
+                                <td style="padding:8px; border:1px solid #e2e8f0;" id="rep-batt-type">Lithium Iron Phosphate (LiFePO4)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer Action Buttons -->
+                <div class="no-print" style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; border-top:1px solid #e2e8f0; padding-top:15px;">
+                    <button onclick="window.print()" style="background:#0f172a; color:white; border:none; padding:8px 18px; border-radius:6px; cursor:pointer; font-weight:bold;">🖨️ طباعة التقرير</button>
+                    <button onclick="closeReportModal()" style="background:#64748b; color:white; border:none; padding:8px 18px; border-radius:6px; cursor:pointer;">إغلاق</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- Custom JS -->
+   
+    <!-- Application Logic Script -->
     <script src="app.js"></script>
+
+    <!-- Modal Event Handler Helpers -->
+    <script>
+        function openSizingModal() {
+            document.getElementById('sizing-modal').style.display = 'flex';
+        }
+        function closeSizingModal() {
+            document.getElementById('sizing-modal').style.display = 'none';
+        }
+        function openReportModal() {
+            document.getElementById('report-modal').style.display = 'flex';
+        }
+        function closeReportModal() {
+            document.getElementById('report-modal').style.display = 'none';
+        }
+
+        function calculateSystemSizing() {
+            const watts = parseFloat(document.getElementById('load-watts').value) || 5000;
+            const nightHours = parseFloat(document.getElementById('night-hours').value) || 8;
+            const battType = document.getElementById('battery-type').value;
+
+            const kw = (watts / 1000).toFixed(2);
+            const inverterKw = (kw * 1.25).toFixed(2);
+            const batteryKwh = (kw * nightHours).toFixed(1);
+            const batteryAh = Math.round((batteryKwh * 1000) / 48);
+
+            document.getElementById('rep-load').innerText = kw + ' kW';
+            document.getElementById('rep-inverter').innerText = inverterKw + ' kW';
+            document.getElementById('rep-battery').innerText = batteryKwh + ' kWh (48V / ' + batteryAh + 'Ah)';
+            document.getElementById('rep-batt-type').innerText = battType;
+
+            alert('تم تحديث أحمال ومكونات المنظومة في التقرير الفني بنجاح! ✅');
+            closeSizingModal();
+        }
+    </script>
 </body>
 </html>

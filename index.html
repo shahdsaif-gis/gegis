@@ -25,17 +25,16 @@
         .sidebar {
             position: absolute; top: 15px; right: 15px; width: 380px;
             max-height: calc(100vh - 30px); background: rgba(15, 23, 42, 0.92);
-
-
             backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px; z-index: 1000; padding: 16px;
-            display: flex; flex-direction: column; gap: 14px;
+            display: flex; flex-direction: column; gap: 12px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
             overflow-y: auto; transition: all 0.3s ease;
         }
+
         .sidebar-header-banner {
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px;
         }
 
         .header-icon {
@@ -51,7 +50,7 @@
 
         .section-title {
             font-size: 13px; font-weight: 600; color: #38bdf8;
-            margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+            margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
         }
 
         .layer-options { display: flex; justify-content: space-between; gap: 8px; }
@@ -93,7 +92,12 @@
             padding: 6px 10px; border-radius: 6px; font-size: 16px; cursor: pointer;
         }
 
-        /* تعديلات الموبايل لمنع التداخل مع الأدوات */
+        .input-inline {
+            background: #1e293b; border: 1px solid #334155; color: #eab308;
+            border-radius: 4px; padding: 2px 6px; font-size: 11px; width: 65px;
+            text-align: center; font-weight: bold;
+        }
+
         @media (max-width: 600px) {
             .menu-toggle-btn { display: inline-flex; align-items: center; justify-content: center; }
             .sidebar {
@@ -143,8 +147,6 @@
     <div id="map"></div>
 
     <div class="sidebar collapsed" id="sidebar">
-
-
         <div class="sidebar-header-banner">
             <div style="display:flex; align-items:center; gap:10px;">
                 <div class="header-icon"><i class="fa-solid fa-solar-panel"></i></div>
@@ -160,6 +162,7 @@
                 </button>
             </div>
         </div>
+
         <div class="sidebar-content" style="display: flex; flex-direction: column; gap: 12px;">
             <div class="section-box">
                 <div class="section-title"><i class="fa-solid fa-layer-group"></i> <span id="txt-layers-title">الطبقات المكانية المتاحة</span></div>
@@ -185,20 +188,29 @@
                 </div>
             </div>
 
+            <!-- المساحة والألواح مع خيار تحديد قدرة اللوح وزاوية التوجيه -->
             <div class="section-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                     <div class="section-title" style="margin:0;"><i class="fa-solid fa-vector-square"></i> <span id="txt-area-title">المساحة والألواح الشمسية</span></div>
                     <button class="btn" style="width:auto; padding:4px 8px;" id="btn-draw-polygon" onclick="startPolygonDraw()"><i class="fa-solid fa-pen"></i> <span id="txt-btn-draw">رسم المضلع</span></button>
                 </div>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:11px; background:rgba(15,23,42,0.4); padding:8px; border-radius:6px;">
+               
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-size:11px; background:rgba(15,23,42,0.4); padding:8px; border-radius:6px;">
                     <div><span style="color:#94a3b8;" id="txt-total-area">المساحة الكلية:</span> <strong id="val-area">0.00 m²</strong></div>
-                    <div><span style="color:#94a3b8;" id="txt-panel-count">عدد الألواح (400W):</span> <strong id="val-panels">0 لوح</strong></div>
-                    <div style="grid-column: span 2; margin-top:4px;"><span style="color:#94a3b8;" id="txt-est-power">القدرة الإنتاجية المتوقعة:</span> <strong id="val-power" style="color:#38bdf8;">0.00 kWp</strong></div>
+                    <div>
+                        <span style="color:#94a3b8;">قدرة اللوح:</span>
+                        <input type="number" id="input-panel-watt" class="input-inline" value="550" step="10" onchange="recalculateCurrentPolygon()"> W
+                    </div>
+                    <div><span style="color:#94a3b8;" id="txt-panel-count">عدد الألواح:</span> <strong id="val-panels">0 لوح</strong></div>
+                    <div><span style="color:#94a3b8;">زاوية التعامد:</span> <strong id="val-tilt-angle" style="color:#eab308;">-</strong></div>
+                    <div style="grid-column: span 2; margin-top:2px; border-top:1px dashed rgba(255,255,255,0.1); padding-top:4px;">
+                        <span style="color:#94a3b8;" id="txt-est-power">القدرة الإنتاجية المتوقعة:</span> <strong id="val-power" style="color:#38bdf8;">0.00 kWp</strong>
+                    </div>
                 </div>
             </div>
 
             <div class="location-badge" id="val-location-text">
-                <i class="fa-solid fa-location-dot"></i> الخرطوم - محلية الخرطوم [15.5007, 32.5599]
+                <i class="fa-solid fa-location-dot"></i> تحديد موقع على الخريطة [15.5007, 32.5599]
             </div>
 
             <div style="display:flex; gap:8px;">
@@ -213,8 +225,6 @@
     </div>
 
     <!-- Modal حاسبة الأحمال -->
-
-
     <div class="modal-overlay" id="sizing-modal">
         <div class="sizing-card">
             <h3 style="color:#38bdf8; margin-bottom:15px; border-bottom:1px solid #334155; padding-bottom:8px; font-size:15px;">
@@ -242,9 +252,8 @@
             </div>
         </div>
     </div>
-    <!-- Modal التقرير -->
 
-
+    <!-- Modal التقرير الفني -->
     <div class="modal-overlay" id="report-modal">
         <div id="printable-report">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #0284c7; padding-bottom:12px; margin-bottom:20px;">
@@ -257,11 +266,12 @@
                     <p style="margin:2px 0;"><strong>Designed & Developed by:</strong> Shahd Saif</p>
                 </div>
             </div>
+
             <div style="background:#f8fafc; border-right:4px solid #0284c7; padding:12px; border-radius:6px; margin-bottom:15px; font-size:12px;">
                 <h3 style="margin:0 0 8px 0; color:#0284c7; font-size:14px;">📍 أولاً: التحليل الجغرافي والمكاني للموقع</h3>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                    <div><strong>الإحداثيات الجغرافية:</strong> [15.5007, 32.5599]</div>
-                    <div><strong>الارتفاع عن البحر:</strong> 380m</div>
+                    <div><strong>الإحداثيات الجغرافية:</strong> <span id="rep-coords">[15.5007, 32.5599]</span></div>
+                    <div><strong>زاوية التعامد المثالية (Tilt Angle):</strong> <span id="rep-tilt">-</span></div>
                     <div><strong>الإشعاع الشمسي (GHI):</strong> 2,174 kWh/m²/yr</div>
                     <div><strong>درجة الملاءة (MCDA):</strong> S1 (94%)</div>
                 </div>
@@ -271,8 +281,9 @@
                 <h3 style="margin:0 0 8px 0; color:#10b981; font-size:14px;">📐 ثانياً: تقييم المساحات وسعة الألواح</h3>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                     <div><strong>المساحة المحسوبة:</strong> <span id="rep-area">0.00 m²</span></div>
-                    <div><strong>عدد الألواح (400W):</strong> <span id="rep-panels">0 لوح</span></div>
-                    <div><strong>القدرة الإجمالية:</strong> <span id="rep-kwp">0.00 kWp</span></div>
+                    <div><strong>قدرة اللوح المحددة:</strong> <span id="rep-panel-watt">550 W</span></div>
+                    <div><strong>عدد الألواح المطلوبة:</strong> <span id="rep-panels">0 لوح</span></div>
+                    <div><strong>القدرة الإجمالية للحقيبة:</strong> <span id="rep-kwp">0.00 kWp</span></div>
                 </div>
             </div>
 
@@ -324,3 +335,4 @@
     </script>
 </body>
 </html>
+

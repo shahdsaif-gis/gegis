@@ -14,11 +14,12 @@
 
     let lastDrawnLayer = null;
 
-    // الطبقات المكانية الحقيقية
+    // الطبقات المكانية
+
+
     let ghiLayer = null;
     let demLayer = null;
     let windLayer = null;
-
     const translations = {
         ar: {
             appTitle: "GEGIS Analytics ☀️",
@@ -73,59 +74,58 @@
             const mapContainer = document.getElementById('map');
             if (!mapContainer) return;
 
-            // 1. تهيئة الخريطة العالمية بدون قيود حدودية
+            // 1. تهيئة الخريطة بحد تكبير أقصى 21
             map = L.map('map', {
                 center: [15.5007, 32.5599],
-                zoom: 13,
-                maxZoom: 22,
+                zoom: 14,
+                maxZoom: 21,
                 zoomControl: false
             });
 
             L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
-            // 2. خريطة الأقمار الاصطناعية العالمية فائق الجودة
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                maxNativeZoom: 19,
-                maxZoom: 22,
-                attribution: 'Tiles &copy; Esri WorldImagery'
-            }).addTo(map);
+            // 2. خريطة الأقمار الاصطناعية عالية الدقة من Google Hybrid (تغطي كل مباني وغرف العالم بدون خطأ)
+            const googleSat = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+                maxZoom: 21,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                attribution: '&copy; Google Maps'
+            });
 
-            // 3. طبقة الأسماء والمدن والحدود العالمية
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
-                maxNativeZoom: 19,
-                maxZoom: 22
-            }).addTo(map);
+            // خريطة استبانة Esri كبديل
+            const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxNativeZoom: 18,
+                maxZoom: 21,
+                attribution: '&copy; Esri'
+            });
 
-            // --- إعداد الطبقات المكانية التفاعلية ---
+            // إضافة خريطة Google المباشرة لمنع أي شاشات رمادية
+            googleSat.addTo(map);
 
-            // طبقة الإشعاع الشمسي (GHI Overlay)
+            // --- الطبقات المكانية مع منع خروج بلاطات خطأ ---
             ghiLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NAEarth/GHI_Solar_Radiation/MapServer/tile/{z}/{y}/{x}', {
-                maxNativeZoom: 18,
-                maxZoom: 22,
-                opacity: 0.5
+                maxNativeZoom: 15,
+                maxZoom: 21,
+                opacity: 0.4,
+                bounds: null
             });
 
-            // طبقة التضاريس والارتفاعات (DEM / Hillshade)
-            demLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}', {
-                maxNativeZoom: 18,
-                maxZoom: 22,
-                opacity: 0.45
+            demLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                maxNativeZoom: 16,
+                maxZoom: 21,
+                opacity: 0.35
             });
 
-            // طبقة حركة الرياح والضغط (Wind)
             windLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/tile/{z}/{y}/{x}', {
-                maxNativeZoom: 18,
-                maxZoom: 22,
-                opacity: 0.4
+                maxNativeZoom: 15,
+                maxZoom: 21,
+                opacity: 0.35
             });
 
-            // إضافة الطبقة الافتراضية
-            ghiLayer.addTo(map);
+            // 3. أداة الرسم المكانية
 
-            // 4. أداة الرسم المكانية
+
             drawnItems = new L.FeatureGroup();
             map.addLayer(drawnItems);
-
             polygonDrawer = new L.Draw.Polygon(map);
 
             const drawControl = new L.Control.Draw({
@@ -159,14 +159,12 @@
         }
     }
 
-    /**
-     * ربط خيارات الطبقات بإظهارها وإخفائها فوراً
-     */
     function setupLayerToggleListeners() {
+
+
         const chkGhi = document.getElementById('chk-ghi');
         const chkDem = document.getElementById('chk-dem');
         const chkWind = document.getElementById('chk-wind');
-
         if (chkGhi) {
             chkGhi.addEventListener('change', function () {
                 if (this.checked) map.addLayer(ghiLayer);
@@ -200,9 +198,6 @@
         }
     };
 
-    /**
-     * حساب المساحة، عدد الألواح بواتية مخصصة، وزاوية التعامد الشمسية
-     */
     function calculateAreaAndPanels(layer) {
         try {
             const latLngs = layer.getLatLngs()[0];
@@ -210,21 +205,16 @@
            
             if (areaInMeters <= 0) return;
 
-            // أخذ قدرة اللوح المحددة من المدخل
             const panelWattInput = parseFloat(document.getElementById('input-panel-watt').value) || 550;
-           
-            // حساب المساحة التقريبية لكل لوح بناءً على قدرته
             const areaPerPanel = (panelWattInput >= 500) ? 2.6 : 2.0;
             const panelCount = Math.floor(areaInMeters / areaPerPanel);
             const totalCapacityKWp = ((panelCount * panelWattInput) / 1000).toFixed(2);
 
-            // حساب زاوية الميل والتعامد الشمسية بناءً على دائرة العرض
             const centerLat = latLngs[0].lat;
             const centerLng = latLngs[0].lng;
             const optimalTiltAngle = Math.abs(centerLat * 0.9 + 2.5).toFixed(1);
-            const orientationText = (centerLat >= 0) ? `Tilt: ${optimalTiltAngle}° South (جنوباً)` : `Tilt: ${optimalTiltAngle}° North (شمالاً)`;
+            const orientationText = (centerLat >= 0) ? `Tilt: ${optimalTiltAngle}° South` : `Tilt: ${optimalTiltAngle}° North`;
 
-            // تحديث عناصر الواجهة
             document.getElementById('val-area').innerText = sanitizeHTML(areaInMeters.toFixed(2) + ' m²');
             document.getElementById('val-panels').innerText = sanitizeHTML(panelCount + ' ' + (currentLanguage === 'ar' ? 'لوح' : 'Panels'));
             document.getElementById('val-tilt-angle').innerText = sanitizeHTML(`${optimalTiltAngle}°`);
@@ -235,7 +225,6 @@
                 locationBadge.innerHTML = sanitizeHTML(`<i class="fa-solid fa-location-dot"></i> [${centerLat.toFixed(4)}, ${centerLng.toFixed(4)}] | زاوية التعامد: ${optimalTiltAngle}°`);
             }
 
-            // تحديث بيانات التقرير الفني
             document.getElementById('rep-area').innerText = areaInMeters.toFixed(2) + ' m²';
             document.getElementById('rep-panel-watt').innerText = panelWattInput + ' W';
             document.getElementById('rep-panels').innerText = panelCount + ' لوح';
@@ -243,7 +232,6 @@
             document.getElementById('rep-tilt').innerText = orientationText;
             document.getElementById('rep-coords').innerText = `[${centerLat.toFixed(4)}, ${centerLng.toFixed(4)}]`;
 
-            // إظهار نافذة التأكيد زر OK
             const popupContent = `
                 <div style="text-align:center; font-family:sans-serif; padding:6px; color:#0f172a; min-width:170px;">
                     <h4 style="margin:0 0 6px 0; color:#0284c7; font-size:13px; font-weight:bold;">📐 نتائج الموقع والتوجيه</h4>
@@ -277,12 +265,12 @@
         }
     }
 
-    // --- دوال فتح وإغلاق النوافذ المنبثقة وحساب الأحمال ---
     window.openSizingModal = function () {
+
+
         const modal = document.getElementById('sizing-modal');
         if (modal) modal.style.display = 'flex';
     };
-
     window.closeSizingModal = function () {
         const modal = document.getElementById('sizing-modal');
         if (modal) modal.style.display = 'none';
@@ -308,10 +296,9 @@
         const batteryAh = Math.round((batteryKwh * 1000) / 48);
 
         document.getElementById('rep-load').innerText = kw + ' kW';
-
-
         document.getElementById('rep-inverter').innerText = inverterKw + ' kW';
         document.getElementById('rep-battery').innerText = batteryKwh + ' kWh (48V / ' + batteryAh + 'Ah)';
+
         alert('تم حساب الأحمال وتحديث التقرير الهندسي بنجاح! ✅');
         window.closeSizingModal();
     };

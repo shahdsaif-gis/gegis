@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 subtitle.textContent = currentLang === 'ar' ? 'تقييم الملاءة المكانية والمنظومة' : 'Spatial Suitability & System Evaluation';
             }
 
-            // ترجمة عناوين بطاقات القائمة الجانبية
+            // ترجمة عناوين بطاقات القائمة الجانبية بالكامل
             const cards = document.querySelectorAll('.sidebar .card h3');
             if (cards.length >= 4) {
                 if (currentLang === 'en') {
@@ -68,13 +68,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // ترجمة أزرار الرسم والتراجع
+            // ترجمة أزرار الرسم والتراجع بدقة
             const drawBtn = document.getElementById('drawPolyBtn');
             const undoBtn = document.getElementById('undoBtn');
             if (drawBtn) drawBtn.innerHTML = currentLang === 'ar' ? '<i class="fa-solid fa-draw-polygon"></i> رسم المضلع' : '<i class="fa-solid fa-draw-polygon"></i> Draw Polygon';
             if (undoBtn) undoBtn.innerHTML = currentLang === 'ar' ? '<i class="fa-solid fa-rotate-left"></i> تراجع' : '<i class="fa-solid fa-rotate-left"></i> Undo';
 
-            // ترجمة الأزرار السفلية
+            // ترجمة الأزرار السفلية (حاسبة الأحمال وتصدير التقرير)
             const calcLoadBtn = document.getElementById('calcLoadBtn');
             const exportReportBtn = document.getElementById('exportReportBtn');
             if (calcLoadBtn) calcLoadBtn.textContent = currentLang === 'ar' ? 'حاسبة الأحمال' : 'Load Calculator';
@@ -85,6 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+
 
 
     // ==================== 4. تهيئة الخريطة (Google Hybrid) ====================

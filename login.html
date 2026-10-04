@@ -11,11 +11,11 @@
     <div class="login-container">
         <div class="login-header">
             <i class="fa-solid fa-solar-panel login-icon"></i>
-            <h2>GEGIS Analytics</h2>
+            <h2 id="formTitle">تسجيل الدخول</h2>
             <p>منظومة التحليل المكاني لمشاريع الطاقة الشمسية</p>
         </div>
        
-        <form id="loginForm" class="login-form">
+        <form id="authForm" class="login-form">
             <div class="input-group">
                 <label for="email"><i class="fa-solid fa-envelope"></i> البريد الإلكتروني</label>
                 <input type="email" id="email" required placeholder="example@domain.com">
@@ -28,11 +28,18 @@
 
             <div id="errorMessage" class="error-message" style="display: none;"></div>
 
-            <button type="submit" id="loginBtn" class="btn-login">
-                <span>تسجيل الدخول</span>
-                <i class="fa-solid fa-right-to-bracket"></i>
+            <button type="submit" id="submitBtn" class="btn-login">
+                <span id="btnText">تسجيل الدخول</span>
+                <i class="fa-solid fa-right-to-bracket" id="btnIcon"></i>
             </button>
         </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; border-top: 1px solid #334155; padding-top: 1rem;">
+            <p id="togglePrompt" style="color: #cbd5e1; font-size: 0.88rem;">
+                ليس لديك حساب؟
+                <a href="#" id="toggleAuth" style="color: #f59e0b; text-decoration: none; font-weight: bold;">إنشاء حساب جديد</a>
+            </p>
+        </div>
     </div>
 
     <!-- Firebase SDKs -->
@@ -41,4 +48,3 @@
     <script src="login.js"></script>
 </body>
 </html>
-

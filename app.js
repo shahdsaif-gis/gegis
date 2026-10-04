@@ -1,4 +1,4 @@
-// ==================== 1. نظام الحماية وتسجيل الدخول ====================
+// ==================== 1. نظام الحماية عبر Firebase ====================
 const firebaseConfig = {
   apiKey: "AIzaSyBj0y6uQxMGyWFOMREuUjoTPyvqOUqA_JM",
   authDomain: "gegis-f43ca.firebaseapp.com",
@@ -15,141 +15,69 @@ if (typeof firebase !== 'undefined') {
   });
 }
 
-// ==================== 2. قاموس الترجمة الشامل ====================
-const translations = {
-  ar: {
-    title: "GEGIS Analytics",
-    subtitle: "تقييم الملاءة المكانية والمنظومة",
-    layersTitle: "الطبقات المكانية المتاحة",
-    layerGHI: "إشعاع (GHI)",
-    layerDEM: "تضاريس (DEM)",
-    layerWind: "سرعة الرياح",
-    solarRad: "الإشعاع الشمسي",
-    elevWind: "الارتفاع / الرياح",
-    suitability: "درجة الملاءة",
-    solarAreaTitle: "المساحة والألواح الشمسية",
-    drawPoly: "رسم المضلع",
-    undo: "تراجع",
-    reqCap: "القدرة المطلوبة:",
-    panelCap: "قدرة اللوح:",
-    panelCountLabel: "عدد الألواح:",
-    tiltValLabel: "زاوية التعامد:",
-    areaCalcLabel: "المساحة الكلية / المطلوبة:",
-    calcLoad: "حاسبة الأحمال",
-    exportReport: "تصدير التقرير",
-    langBtn: "EN",
-    unitPanels: "لوح",
-    unitReq: "مطلوبة"
-  },
-  en: {
-    title: "GEGIS Analytics",
-    subtitle: "Spatial Suitability & System Evaluation",
-    layersTitle: "Available Spatial Layers",
-    layerGHI: "Solar Radiation (GHI)",
-    layerDEM: "Elevation (DEM)",
-    layerWind: "Wind Speed",
-    solarRad: "Solar Radiation",
-    elevWind: "Elevation / Wind",
-    suitability: "Suitability Score",
-    solarAreaTitle: "Area & Solar Panels",
-    drawPoly: "Draw Polygon",
-    undo: "Undo",
-    reqCap: "Required Cap:",
-    panelCap: "Panel Cap:",
-    panelCountLabel: "Panels Count:",
-    tiltValLabel: "Tilt Angle:",
-    areaCalcLabel: "Total / Required Area:",
-    calcLoad: "Load Calculator",
-    exportReport: "Export Report",
-    langBtn: "AR",
-    unitPanels: "Panels",
-    unitReq: "required"
-  }
-};
-
-let currentLang = 'ar';
-
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ==================== 3. زر القائمة للهواتف وزر اللغات ====================
-    const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
-    const langBtn = document.getElementById('langBtn');
+    // ==================== 2. تهيئة الخريطة Google Hybrid بدون شاشة رمادية ====================
+    const map = L.map('map', { maxZoom: 21 }).setView([15.5007, 32.5599], 13);
 
-    if (menuToggle && sidebar) {
-        menuToggle.addEventListener('click', () => sidebar.classList.toggle('active'));
-    }
-
-    if (langBtn) {
-        langBtn.addEventListener('click', () => {
-            currentLang = currentLang === 'ar' ? 'en' : 'ar';
-            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.documentElement.lang = currentLang;
-            langBtn.textContent = translations[currentLang].langBtn;
-
-            document.querySelectorAll('[data-i18n]').forEach(elem => {
-                const key = elem.getAttribute('data-i18n');
-                if (translations[currentLang][key]) {
-                    elem.textContent = translations[currentLang][key];
-                }
-            });
-
-            updateCalculations();
-        });
-    }
-
-    // ==================== 4. تهيئة الخريطة بوضوح عالي جداً ====================
-    const map = L.map('map', { maxZoom: 22 }).setView([15.5007, 32.5599], 13);
-
-    // طبقة الخريطة الرئيسية
-    const satelliteImg = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Esri Satellite',
-        maxNativeZoom: 18,
-        maxZoom: 22
+    const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+        maxZoom: 21,
+        attribution: 'Google Maps Hybrid'
     }).addTo(map);
 
-    const labelsLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Esri Labels',
-        maxNativeZoom: 18,
-        maxZoom: 22
-    }).addTo(map);
-
-    // طبقات مخصصة للتحليل المكاني
-    const ghiLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { opacity: 0.3 });
-    const demLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { opacity: 0.4 });
-    const windLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', { opacity: 0.3 });
-
-    // ربط الـ Checkboxes بالتفعيل
-    document.getElementById('layerGHI').addEventListener('change', (e) => e.target.checked ? ghiLayer.addTo(map) : map.removeLayer(ghiLayer));
-    document.getElementById('layerDEM').addEventListener('change', (e) => e.target.checked ? demLayer.addTo(map) : map.removeLayer(demLayer));
-    document.getElementById('layerWind').addEventListener('change', (e) => e.target.checked ? windLayer.addTo(map) : map.removeLayer(windLayer));
-
-    // ==================== 5. أدوات الرسم وإظهار أطوال الأضلاع ====================
+    // ==================== 3. أدوات رسم المضلع وحساب أطوال الأضلاع ====================
     const drawnItems = new L.FeatureGroup();
     map.addLayer(drawnItems);
+    let edgeMarkers = [];
     let drawnAreaSquareMeters = 0;
 
-    // إعداد أداة الرسم مع إظهار أطوال الأضلاع أثناء الرسم
     const polygonDrawer = new L.Draw.Polygon(map, {
         showArea: true,
         metric: true,
-        feet: false,
         shapeOptions: { color: '#f59e0b', weight: 3 }
     });
 
     document.getElementById('drawPolyBtn').addEventListener('click', () => polygonDrawer.enable());
     document.getElementById('undoBtn').addEventListener('click', () => {
         drawnItems.clearLayers();
+        clearEdgeTooltips();
         drawnAreaSquareMeters = 0;
         updateCalculations();
     });
 
+    function clearEdgeTooltips() {
+        edgeMarkers.forEach(m => map.removeLayer(m));
+        edgeMarkers = [];
+    }
+
     map.on(L.Draw.Event.CREATED, (e) => {
         const layer = e.layer;
         drawnItems.clearLayers();
+        clearEdgeTooltips();
         drawnItems.addLayer(layer);
 
         const latlngs = layer.getLatLngs()[0];
+       
+        // عرض أطوال الأضلاع بالامتار
+        for (let i = 0; i < latlngs.length; i++) {
+            let p1 = latlngs[i];
+            let p2 = latlngs[(i + 1) % latlngs.length];
+            let dist = p1.distanceTo(p2).toFixed(1);
+
+            let midLat = (p1.lat + p2.lat) / 2;
+            let midLng = (p1.lng + p2.lng) / 2;
+
+            let tooltip = L.tooltip({
+                permanent: true,
+                direction: 'center',
+                className: 'edge-tooltip'
+            }).setContent(`${dist} m`).setLatLng([midLat, midLng]);
+
+            tooltip.addTo(map);
+            edgeMarkers.push(tooltip);
+        }
+
+        // حساب المساحة
         let area = 0;
         if (latlngs.length > 2) {
             for (let i = 0; i < latlngs.length; i++) {
@@ -163,26 +91,26 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCalculations();
     });
 
-    // ==================== 6. النقر لحساب زاوية الميل والمناخ ====================
+    // ==================== 4. النقر وحساب زاوية الميل والتعامد ====================
     let currentMarker = null;
+    let selectedLat = 15.5007;
+    let selectedLng = 32.5599;
 
     map.on('click', async (e) => {
         if (polygonDrawer._enabled) return;
 
-        const lat = e.latlng.lat;
-        const lng = e.latlng.lng;
+        selectedLat = e.latlng.lat;
+        selectedLng = e.latlng.lng;
 
         if (currentMarker) map.removeLayer(currentMarker);
-        currentMarker = L.marker([lat, lng]).addTo(map);
+        currentMarker = L.marker([selectedLat, selectedLng]).addTo(map);
 
-        // حساب زاوية الميل والتعامد المثالية للوح بناءً على خط العرض
-        const optimalTilt = Math.abs(lat).toFixed(1);
+        // حساب زاوية التعامد والميل الموصى بها تلقائياً حسب خط العرض
+        const optimalTilt = Math.abs(selectedLat).toFixed(1);
         document.getElementById('tiltVal').textContent = optimalTilt + '°';
 
-        document.getElementById('solarVal').innerHTML = 'جاري...';
-
         try {
-            const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&daily=shortwave_radiation_sum,wind_speed_10m_max&timezone=auto`;
+            const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${selectedLat.toFixed(4)}&longitude=${selectedLng.toFixed(4)}&daily=shortwave_radiation_sum,wind_speed_10m_max&timezone=auto`;
             const res = await fetch(apiUrl);
             const data = await res.json();
 
@@ -199,45 +127,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ==================== 7. الحسابات التلقائية ====================
+    // ==================== 5. الحسابات الديناميكية وسعة الألواح ====================
     const reqCapInput = document.getElementById('reqCap');
     const panelCapInput = document.getElementById('panelCap');
 
     function updateCalculations() {
         const reqKW = parseFloat(reqCapInput.value) || 0;
-        const panelW = parseFloat(panelCapInput.value) || 590;
-        const t = translations[currentLang];
+        const panelW = parseFloat(panelCapInput.value) || 400; // ديناميكي حسب إدخالك
 
         if (panelW > 0) {
             const count = Math.ceil((reqKW * 1000) / panelW);
-            const reqArea = (count * 2.6).toFixed(2);
+            const calcArea = drawnAreaSquareMeters > 0 ? drawnAreaSquareMeters.toFixed(2) : (count * 2.2).toFixed(2);
 
-            document.getElementById('panelCount').textContent = `${count} ${t.unitPanels}`;
-
-            if (drawnAreaSquareMeters > 0) {
-                document.getElementById('areaCalc').textContent = `${drawnAreaSquareMeters.toFixed(2)} m² / ${reqArea} m²`;
-            } else {
-                document.getElementById('areaCalc').textContent = `${reqArea} m² (${t.unitReq})`;
-            }
+            document.getElementById('panelCount').textContent = `${count} لوح`;
+            document.getElementById('areaCalc').textContent = `${calcArea} m²`;
         }
     }
 
     reqCapInput.addEventListener('input', updateCalculations);
     panelCapInput.addEventListener('input', updateCalculations);
 
-    // ==================== 8. نافذة التقرير وحاسبة الأحمال ====================
+    // ==================== 6. حاسبة الأحمال والتقرير المحدث ====================
+    const loadModal = document.getElementById('loadModal');
     const reportModal = document.getElementById('reportModal');
-   
-    document.getElementById('exportReportBtn').addEventListener('click', () => {
-        document.getElementById('repCap').textContent = reqCapInput.value + ' kWp';
-        document.getElementById('repPanels').textContent = document.getElementById('panelCount').textContent;
-        document.getElementById('repTilt').textContent = document.getElementById('tiltVal').textContent;
-        document.getElementById('repArea').textContent = document.getElementById('areaCalc').textContent;
-        reportModal.style.display = 'flex';
+
+    document.getElementById('calcLoadBtn').addEventListener('click', () => loadModal.style.display = 'flex');
+    document.getElementById('closeLoadBtn').addEventListener('click', () => loadModal.style.display = 'none');
+
+    document.getElementById('saveLoadBtn').addEventListener('click', () => {
+        const watt = parseFloat(document.getElementById('loadWattInput').value) || 31000;
+        reqCapInput.value = (watt / 1000).toFixed(2);
+        updateCalculations();
+        loadModal.style.display = 'none';
     });
 
-    document.getElementById('calcLoadBtn').addEventListener('click', () => {
-        alert(currentLang === 'ar' ? 'حاسبة الأحمال الكهربائية: اجمالي الأحمال المقدرة ' + reqCapInput.value + ' kWp' : 'Load Calculator: Total Estimated Load ' + reqCapInput.value + ' kWp');
+    document.getElementById('exportReportBtn').addEventListener('click', () => {
+        const totalWatt = parseFloat(document.getElementById('loadWattInput').value) || 31000;
+        const totalKW = (totalWatt / 1000).toFixed(2);
+        const panelW = panelCapInput.value;
+        const count = Math.ceil((totalWatt) / panelW);
+        const inverterKW = (totalKW * 1.25).toFixed(2);
+        const battKWh = (totalKW * 14).toFixed(1);
+
+        document.getElementById('repCoords').textContent = `[${selectedLng.toFixed(4)}, ${selectedLat.toFixed(4)}]`;
+        document.getElementById('repAreaVal').textContent = document.getElementById('areaCalc').textContent;
+        document.getElementById('repPanelWattTag').textContent = `${panelW}W`;
+        document.getElementById('repPanelCountVal').textContent = `${count} لوح`;
+        document.getElementById('repTiltAngleVal').textContent = document.getElementById('tiltVal').textContent;
+        document.getElementById('repTotalKWp').textContent = `${totalKW} kWp`;
+
+        document.getElementById('tbTotalLoad').textContent = `kW ${totalKW}`;
+        document.getElementById('tbInverter').textContent = `kW ${inverterKW}`;
+        document.getElementById('tbBattery').textContent = `kWh (48V / 9042Ah) ${battKWh}`;
+
+        reportModal.style.display = 'flex';
     });
 
     document.getElementById('closeReportBtn').addEventListener('click', () => reportModal.style.display = 'none');
@@ -245,4 +188,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateCalculations();
 });
-

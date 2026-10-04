@@ -1,3 +1,4 @@
+/* ==================== 1. التنسيقات العامة والأساسية ==================== */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -13,7 +14,7 @@ body {
     overflow: hidden;
 }
 
-/* الهيدر العلوي */
+/* ==================== 2. الهيدر العلوي ==================== */
 .top-header {
     height: 60px;
     background-color: #0f172a;
@@ -31,6 +32,9 @@ body {
     color: #f59e0b;
     font-size: 1.5rem;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .header-title {
@@ -63,9 +67,14 @@ body {
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
-/* التقسيم الرئيسي */
+.lang-btn:hover {
+    background-color: #d97706;
+}
+
+/* ==================== 3. الهيكل الرئيسي للتطبيق ==================== */
 .app-container {
     display: flex;
     height: calc(100vh - 60px);
@@ -73,8 +82,10 @@ body {
     position: relative;
 }
 
-/* السايدبار */
+/* ==================== 4. اللوحة الجانبية (Sidebar) ==================== */
 .sidebar {
+
+
     width: 340px;
     min-width: 340px;
     background-color: #111a2e;
@@ -87,7 +98,6 @@ body {
     border-left: 1px solid #1e293b;
     transition: transform 0.3s ease;
 }
-
 .card {
     background-color: #17233d;
     border: 1px solid #233354;
@@ -157,6 +167,10 @@ body {
     font-weight: bold;
     cursor: pointer;
     font-size: 0.85rem;
+    transition: background-color 0.2s ease;
+}
+.btn-gold:hover {
+    background-color: #d97706;
 }
 
 .btn-outline {
@@ -167,6 +181,11 @@ body {
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.85rem;
+    transition: background-color 0.2s ease;
+}
+
+.btn-outline:hover {
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .input-inline-row {
@@ -220,6 +239,10 @@ body {
     font-weight: bold;
     font-size: 0.85rem;
     cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.btn-gold-full:hover {
+    background-color: #d97706;
 }
 
 .btn-outline-full {
@@ -231,8 +254,31 @@ body {
     border-radius: 6px;
     font-size: 0.85rem;
     cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
+.btn-outline-full:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ==================== 5. حقوق المطور ==================== */
+.developer-credits {
+    text-align: center;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    padding-top: 0.8rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid #1e293b;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    letter-spacing: 0.5px;
+}
+
+.developer-credits span {
+    color: #f59e0b;
+    font-weight: bold;
+}
+
+/* ==================== 6. الخريطة (Map) ==================== */
 .map-container {
     flex-grow: 1;
     height: 100%;
@@ -243,18 +289,130 @@ body {
     height: 100%;
 }
 
-/* ==================== حل مشكلة التلفون (Responsive Sidebar) ==================== */
+/* ==================== 7. تصميم صفحة تسجيل الدخول (Login Page) ==================== */
+body.login-body {
+    background-color: #0f172a !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    direction: rtl !important;
+}
+
+.login-container {
+    background: #1e293b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 12px;
+    padding: 2.2rem;
+    width: 90%;
+    max-width: 380px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+    margin: auto !important;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 1.75rem;
+}
+
+.login-icon {
+    font-size: 2.8rem;
+    color: #f59e0b;
+    margin-bottom: 0.6rem;
+}
+
+.login-header h2 {
+    color: #f8fafc;
+    margin: 0 0 0.4rem 0;
+    font-size: 1.6rem;
+}
+
+.login-header p {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.login-form .input-group {
+    margin-bottom: 1.1rem;
+}
+
+.login-form label {
+    display: block;
+    color: #cbd5e1;
+    margin-bottom: 0.35rem;
+    font-size: 0.85rem;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 0.68rem 0.9rem;
+    border-radius: 6px;
+    border: 1px solid #334155;
+    background-color: #0f172a;
+    color: #ffffff;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: #f59e0b;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #f59e0b;
+    color: #0f172a;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s ease;
+    margin-top: 0.8rem;
+}
+
+.btn-login:hover {
+    background-color: #d97706;
+}
+
+.error-message {
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+    color: #fca5a5;
+    padding: 0.65rem;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    margin-bottom: 0.85rem;
+    text-align: center;
+}
+
+/* ==================== 8. الاستجابة مع الشاشات الصغيرة (Responsive) ==================== */
 @media (max-width: 768px) {
     .sidebar {
         position: absolute;
         top: 0;
         right: 0;
         height: 100%;
-        transform: translateX(100%); /* يخفي القائمة خارج الشاشة يميناً */
+        transform: translateX(100%);
         box-shadow: -5px 0 15px rgba(0,0,0,0.5);
     }
 
+    html[dir="ltr"] .sidebar {
+        right: auto;
+        left: 0;
+        transform: translateX(-100%);
+    }
+
     .sidebar.active {
-        transform: translateX(0); /* يُظهر القائمة عند الضغط على الأزرار الثلاثة */
+        transform: translateX(0) !important;
     }
 }

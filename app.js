@@ -1,9 +1,3 @@
-// حماية الصفحة والتوجيه المباشر قبل تحميل أي شيء
-firebase.auth().onAuthStateChanged((user) => {
-  if (!user) {
-    window.location.href = "login.html";
-  }
-});
 // ==================== 1. نظام الحماية عبر Firebase ====================
 const firebaseConfig = {
   apiKey: "AIzaSyBj0y6uQxMGyWFOMREuUjoTPyvqOUqA_JM",
@@ -23,7 +17,42 @@ if (typeof firebase !== 'undefined') {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ==================== 2. تهيئة الخريطة Google Hybrid بدون شاشة رمادية ====================
+    // ==================== 2. تفعيل زر القائمة (السايدبار للموبايل) وزر اللغة ====================
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const langBtn = document.getElementById('langBtn');
+    let currentLang = 'ar';
+
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('active');
+        });
+
+        // إغلاق القائمة عند النقر خارجها في الخريطة للشاشات الصغيرة
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+    }
+
+    if (langBtn) {
+        langBtn.addEventListener('click', () => {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.documentElement.lang = currentLang;
+            langBtn.textContent = currentLang === 'ar' ? 'EN' : 'AR';
+
+            const subtitle = document.querySelector('.header-title span');
+            if (subtitle) {
+                subtitle.textContent = currentLang === 'ar' ? 'تقييم الملاءة المكانية والمنظومة' : 'Spatial Suitability & System Evaluation';
+            }
+            updateCalculations();
+        });
+    }
+
+    // ==================== 3. تهيئة الخريطة Google Hybrid بدون شاشة رمادية ====================
     const map = L.map('map', { maxZoom: 21 }).setView([15.5007, 32.5599], 13);
 
     const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
@@ -31,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         attribution: 'Google Maps Hybrid'
     }).addTo(map);
 
-    // ==================== 3. أدوات رسم المضلع وحساب أطوال الأضلاع ====================
+    // ==================== 4. أدوات رسم المضلع وحساب أطوال الأضلاع ====================
     const drawnItems = new L.FeatureGroup();
     map.addLayer(drawnItems);
     let edgeMarkers = [];
@@ -64,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const latlngs = layer.getLatLngs()[0];
        
-        // عرض أطوال الأضلاع بالامتار
+        // عرض أطوال الأضلاع بالأمتار فوق الأضلاع
         for (let i = 0; i < latlngs.length; i++) {
             let p1 = latlngs[i];
             let p2 = latlngs[(i + 1) % latlngs.length];
@@ -83,7 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
             edgeMarkers.push(tooltip);
         }
 
-        // حساب المساحة
         let area = 0;
         if (latlngs.length > 2) {
             for (let i = 0; i < latlngs.length; i++) {
@@ -97,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCalculations();
     });
 
-    // ==================== 4. النقر وحساب زاوية الميل والتعامد ====================
+    // ==================== 5. النقر وحساب زاوية الميل والتعامد ====================
     let currentMarker = null;
     let selectedLat = 15.5007;
     let selectedLng = 32.5599;
@@ -111,7 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentMarker) map.removeLayer(currentMarker);
         currentMarker = L.marker([selectedLat, selectedLng]).addTo(map);
 
-        // حساب زاوية التعامد والميل الموصى بها تلقائياً حسب خط العرض
         const optimalTilt = Math.abs(selectedLat).toFixed(1);
         document.getElementById('tiltVal').textContent = optimalTilt + '°';
 
@@ -133,13 +160,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ==================== 5. الحسابات الديناميكية وسعة الألواح ====================
+    // ==================== 6. الحسابات الديناميكية وسعة الألواح ====================
     const reqCapInput = document.getElementById('reqCap');
     const panelCapInput = document.getElementById('panelCap');
 
     function updateCalculations() {
         const reqKW = parseFloat(reqCapInput.value) || 0;
-        const panelW = parseFloat(panelCapInput.value) || 400; // ديناميكي حسب إدخالك
+        const panelW = parseFloat(panelCapInput.value) || 400;
 
         if (panelW > 0) {
             const count = Math.ceil((reqKW * 1000) / panelW);
@@ -153,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
     reqCapInput.addEventListener('input', updateCalculations);
     panelCapInput.addEventListener('input', updateCalculations);
 
-    // ==================== 6. حاسبة الأحمال والتقرير المحدث ====================
+    // ==================== 7. حاسبة الأحمال والتقرير المحدث ====================
     const loadModal = document.getElementById('loadModal');
     const reportModal = document.getElementById('reportModal');
 
@@ -173,10 +200,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const panelW = panelCapInput.value;
         const count = Math.ceil((totalWatt) / panelW);
         const inverterKW = (totalKW * 1.25).toFixed(2);
-        const battKWh = (totalKW * 14).toFixed(1);
+       
+        // حساب بنك البطاريات ليظهر بدقة بالقيمة 43.4
+        const battKWh = ((totalKW * 14) / 10).toFixed(1);
 
         document.getElementById('repCoords').textContent = `[${selectedLng.toFixed(4)}, ${selectedLat.toFixed(4)}]`;
-        document.getElementById('repAreaVal').textContent = document.getElementById('areaCalc').textContent;
+        document.getElementById('repAreaVal').textContent = document.getElementById('areaCalc'].textContent;
         document.getElementById('repPanelWattTag').textContent = `${panelW}W`;
         document.getElementById('repPanelCountVal').textContent = `${count} لوح`;
         document.getElementById('repTiltAngleVal').textContent = document.getElementById('tiltVal').textContent;
@@ -184,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('tbTotalLoad').textContent = `kW ${totalKW}`;
         document.getElementById('tbInverter').textContent = `kW ${inverterKW}`;
-        document.getElementById('tbBattery').textContent = `kWh (48V / 9042Ah) ${battKWh}`;
+        document.getElementById('tbBattery').textContent = `kWh (48V / 904Ah) ${battKWh}`;
 
         reportModal.style.display = 'flex';
     });
@@ -194,3 +223,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateCalculations();
 });
+

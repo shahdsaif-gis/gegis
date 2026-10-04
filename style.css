@@ -98,6 +98,30 @@ body { font-family: 'Tajawal', sans-serif; background-color: #0b1329; color: #f8
 }
 
 .rep-section, .rep-header-row, .rep-actions-row {
+   /* ==================== تصحيح توسيط صفحة تسجيل الدخول ==================== */
+body.login-body {
+    background-color: #0b1329 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    margin: 0 !important;
+    padding: 1rem !important;
+    direction: rtl !important;
+    overflow: hidden !important;
+}
+
+.login-container {
+    background: #111a2e;
+    border: 1px solid #233354;
+    border-radius: 12px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+    margin: auto !important;
+} 
     position: relative;
     z-index: 1; /* لضمان ظهور النصوص بوضوح فوق العلامة المائية */
 }

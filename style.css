@@ -1,4 +1,4 @@
-/* ==================== 1. التنسيقات العامة والأساسية ==================== */
+/* ==================== 1. التنسيقات العامة والخطوط ==================== */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,12 +6,17 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #0b1329;
     color: #f8fafc;
     direction: rtl;
     height: 100vh;
     overflow: hidden;
+}
+
+html[dir="ltr"] body {
+    direction: ltr;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif;
 }
 
 /* ==================== 2. الهيدر العلوي ==================== */
@@ -32,24 +37,21 @@ body {
     color: #f59e0b;
     font-size: 1.5rem;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .header-title {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
 }
 
 .header-icon {
     color: #f59e0b;
-    font-size: 1.5rem;
+    font-size: 1.6rem;
 }
 
 .header-title h1 {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     color: #ffffff;
 }
 
@@ -63,11 +65,11 @@ body {
     background-color: #f59e0b;
     color: #0f172a;
     border: none;
-    padding: 0.3rem 0.8rem;
+    padding: 0.35rem 0.9rem;
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .lang-btn:hover {
@@ -84,10 +86,8 @@ body {
 
 /* ==================== 4. اللوحة الجانبية (Sidebar) ==================== */
 .sidebar {
-
-
-    width: 340px;
-    min-width: 340px;
+    width: 350px;
+    min-width: 350px;
     background-color: #111a2e;
     padding: 1rem;
     display: flex;
@@ -98,6 +98,12 @@ body {
     border-left: 1px solid #1e293b;
     transition: transform 0.3s ease;
 }
+
+html[dir="ltr"] .sidebar {
+    border-left: none;
+    border-right: 1px solid #1e293b;
+}
+
 .card {
     background-color: #17233d;
     border: 1px solid #233354;
@@ -167,10 +173,6 @@ body {
     font-weight: bold;
     cursor: pointer;
     font-size: 0.85rem;
-    transition: background-color 0.2s ease;
-}
-.btn-gold:hover {
-    background-color: #d97706;
 }
 
 .btn-outline {
@@ -181,11 +183,6 @@ body {
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.85rem;
-    transition: background-color 0.2s ease;
-}
-
-.btn-outline:hover {
-    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .input-inline-row {
@@ -196,9 +193,16 @@ body {
     font-size: 0.8rem;
 }
 
+.input-flex {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.2rem;
+}
+
 .input-inline-row input {
-    width: 60px;
-    padding: 0.2rem 0.4rem;
+    width: 65px;
+    padding: 0.25rem 0.4rem;
     background: #0b1329;
     border: 1px solid #334155;
     color: #fff;
@@ -216,7 +220,7 @@ body {
 
 .area-result-box {
     background-color: #0b1329;
-    padding: 0.5rem;
+    padding: 0.55rem;
     border-radius: 6px;
     font-size: 0.8rem;
     color: #38bdf8;
@@ -239,10 +243,6 @@ body {
     font-weight: bold;
     font-size: 0.85rem;
     cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-.btn-gold-full:hover {
-    background-color: #d97706;
 }
 
 .btn-outline-full {
@@ -254,28 +254,24 @@ body {
     border-radius: 6px;
     font-size: 0.85rem;
     cursor: pointer;
-    transition: background-color 0.2s ease;
 }
 
-.btn-outline-full:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-/* ==================== 5. حقوق المطور ==================== */
+/* ==================== 5. حقوق المطور المنسقة بالأصفر الدافي ==================== */
 .developer-credits {
     text-align: center;
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     color: #94a3b8;
     padding-top: 0.8rem;
-    margin-top: 0.5rem;
+    margin-top: 0.6rem;
     border-top: 1px solid #1e293b;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Poppins', sans-serif;
     letter-spacing: 0.5px;
 }
 
 .developer-credits span {
-    color: #f59e0b;
-    font-weight: bold;
+    color: #f59e0b; /* أصفر دافي */
+    font-weight: 700;
+    font-size: 0.88rem;
 }
 
 /* ==================== 6. الخريطة (Map) ==================== */
@@ -289,113 +285,93 @@ body {
     height: 100%;
 }
 
-/* ==================== 7. تصميم صفحة تسجيل الدخول (Login Page) ==================== */
-body.login-body {
-    background-color: #0f172a !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    min-height: 100vh !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    direction: rtl !important;
-}
-
-.login-container {
-    background: #1e293b;
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    border-radius: 12px;
-    padding: 2.2rem;
-    width: 90%;
-    max-width: 380px;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
-    margin: auto !important;
-}
-
-.login-header {
-    text-align: center;
-    margin-bottom: 1.75rem;
-}
-
-.login-icon {
-    font-size: 2.8rem;
-    color: #f59e0b;
-    margin-bottom: 0.6rem;
-}
-
-.login-header h2 {
-    color: #f8fafc;
-    margin: 0 0 0.4rem 0;
-    font-size: 1.6rem;
-}
-
-.login-header p {
-    color: #94a3b8;
-    font-size: 0.85rem;
-    margin: 0;
-}
-
-.login-form .input-group {
-    margin-bottom: 1.1rem;
-}
-
-.login-form label {
-    display: block;
-    color: #cbd5e1;
-    margin-bottom: 0.35rem;
-    font-size: 0.85rem;
-}
-
-.login-form input {
-    width: 100%;
-    padding: 0.68rem 0.9rem;
-    border-radius: 6px;
-    border: 1px solid #334155;
-    background-color: #0f172a;
-    color: #ffffff;
-    box-sizing: border-box;
-    transition: border-color 0.2s ease;
-}
-
-.login-form input:focus {
-    outline: none;
-    border-color: #f59e0b;
-}
-
-.btn-login {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: #f59e0b;
-    color: #0f172a;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 0.95rem;
-    cursor: pointer;
+/* ==================== 7. نافذة التقرير (Modal) ==================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.75);
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0.5rem;
-    transition: background-color 0.2s ease;
-    margin-top: 0.8rem;
+    z-index: 3000;
 }
 
-.btn-login:hover {
-    background-color: #d97706;
+.modal-content {
+    background: #17233d;
+    border: 1px solid #f59e0b;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    padding: 1.5rem;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
 }
 
-.error-message {
-    background-color: rgba(239, 68, 68, 0.1);
-    border: 1px solid #ef4444;
-    color: #fca5a5;
-    padding: 0.65rem;
-    border-radius: 6px;
-    font-size: 0.82rem;
-    margin-bottom: 0.85rem;
+.modal-close {
+    position: absolute;
+    top: 10px;
+    left: 15px;
+    background: none;
+    border: none;
+    color: #f59e0b;
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+html[dir="ltr"] .modal-close {
+    left: auto;
+    right: 15px;
+}
+
+.report-header {
     text-align: center;
+    margin-bottom: 1.2rem;
 }
 
-/* ==================== 8. الاستجابة مع الشاشات الصغيرة (Responsive) ==================== */
+.report-icon {
+    font-size: 2.2rem;
+    color: #f59e0b;
+    margin-bottom: 0.4rem;
+}
+
+.report-header h2 {
+    font-size: 1.1rem;
+    color: #ffffff;
+}
+
+.report-body {
+    background: #0b1329;
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.report-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    border-bottom: 1px dashed #233354;
+    padding-bottom: 0.4rem;
+}
+
+.report-row:last-child {
+    border-bottom: none;
+}
+
+.report-row span {
+    color: #94a3b8;
+}
+
+.report-row strong {
+    color: #ffffff;
+}
+
+/* ==================== 8. الاستجابة مع التلفون ==================== */
 @media (max-width: 768px) {
     .sidebar {
         position: absolute;
@@ -416,3 +392,4 @@ body.login-body {
         transform: translateX(0) !important;
     }
 }
+

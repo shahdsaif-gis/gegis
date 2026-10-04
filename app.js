@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ==================== 3. زر تبديل اللغة (AR / EN) ====================
+     // ==================== 3. زر تبديل اللغة (AR / EN) ====================
     const langBtn = document.getElementById('langBtn');
     let currentLang = 'ar';
 
@@ -46,13 +46,46 @@ document.addEventListener('DOMContentLoaded', () => {
             document.documentElement.lang = currentLang;
             langBtn.textContent = currentLang === 'ar' ? 'EN' : 'AR';
 
+            // ترجمة العنوان الفرعي في الشريط العلوي
             const subtitle = document.querySelector('.header-title span');
             if (subtitle) {
                 subtitle.textContent = currentLang === 'ar' ? 'تقييم الملاءة المكانية والمنظومة' : 'Spatial Suitability & System Evaluation';
             }
-            updateCalculations();
+
+            // ترجمة عناوين بطاقات القائمة الجانبية
+            const cards = document.querySelectorAll('.sidebar .card h3');
+            if (cards.length >= 4) {
+                if (currentLang === 'en') {
+                    cards[0].innerHTML = '<i class="fa-solid fa-layer-group"></i> Spatial & Climatic Analysis';
+                    cards[1].innerHTML = '<i class="fa-solid fa-ruler-combined"></i> Area & Layout Assessment';
+                    cards[2].innerHTML = '<i class="fa-solid fa-bolt"></i> Load & System Components';
+                    cards[3].innerHTML = '<i class="fa-solid fa-solar-panel"></i> Solar Panel Specifications';
+                } else {
+                    cards[0].innerHTML = '<i class="fa-solid fa-layer-group"></i> التحليل الجغرافي والمكاني';
+                    cards[1].innerHTML = '<i class="fa-solid fa-ruler-combined"></i> تقييم المساحات والأضلاع';
+                    cards[2].innerHTML = '<i class="fa-solid fa-bolt"></i> حاسبة الأحمال ومكونات المنظومة';
+                    cards[3].innerHTML = '<i class="fa-solid fa-solar-panel"></i> مواصفات الألواح الشمسية';
+                }
+            }
+
+            // ترجمة أزرار الرسم والتراجع
+            const drawBtn = document.getElementById('drawPolyBtn');
+            const undoBtn = document.getElementById('undoBtn');
+            if (drawBtn) drawBtn.innerHTML = currentLang === 'ar' ? '<i class="fa-solid fa-draw-polygon"></i> رسم المضلع' : '<i class="fa-solid fa-draw-polygon"></i> Draw Polygon';
+            if (undoBtn) undoBtn.innerHTML = currentLang === 'ar' ? '<i class="fa-solid fa-rotate-left"></i> تراجع' : '<i class="fa-solid fa-rotate-left"></i> Undo';
+
+            // ترجمة الأزرار السفلية
+            const calcLoadBtn = document.getElementById('calcLoadBtn');
+            const exportReportBtn = document.getElementById('exportReportBtn');
+            if (calcLoadBtn) calcLoadBtn.textContent = currentLang === 'ar' ? 'حاسبة الأحمال' : 'Load Calculator';
+            if (exportReportBtn) exportReportBtn.textContent = currentLang === 'ar' ? 'تصدير التقرير الهندسي' : 'Export Engineering Report';
+
+            if (typeof updateCalculations === 'function') {
+                updateCalculations();
+            }
         });
     }
+
 
     // ==================== 4. تهيئة الخريطة (Google Hybrid) ====================
     // الخريطة تبدأ في إحداثيات الخرطوم الافتراضية

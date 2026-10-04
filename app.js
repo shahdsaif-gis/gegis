@@ -37,7 +37,7 @@ let currentLang = 'ar';
 
       // ==================== 3. زر تبديل اللغة (AR / EN) الشامل ====================
     const langBtn = document.getElementById('langBtn');
-     currentLang = 'ar';
+    var currentLang = 'ar';
 
     if (langBtn) {
         langBtn.addEventListener('click', () => {

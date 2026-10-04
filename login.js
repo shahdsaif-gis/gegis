@@ -1,4 +1,4 @@
-عدادات Firebase الخاصة بمشروعك
+// إعدادات Firebase الخاصة بمشروعك
 const firebaseConfig = {
   apiKey: "AIzaSyBj0y6uQxMGyWFOMREuUjoTPyvqOUqA_JM",
   authDomain: "gegis-f43ca.firebaseapp.com",
@@ -23,75 +23,84 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
-// عناصر الصفحة
-const authForm = document.getElementById('authForm');
-const errorMessage = document.getElementById('errorMessage');
-const formTitle = document.getElementById('formTitle');
-const btnText = document.getElementById('btnText');
-const btnIcon = document.getElementById('btnIcon');
-const toggleAuth = document.getElementById('toggleAuth');
-const togglePrompt = document.getElementById('togglePrompt');
+// انتظار تحميل عناصر DOM بالكامل
+document.addEventListener('DOMContentLoaded', () => {
+  const authForm = document.getElementById('authForm') || document.getElementById('loginForm');
+  const errorMessage = document.getElementById('errorMessage');
+  const formTitle = document.getElementById('formTitle');
+  const btnText = document.getElementById('btnText');
+  const btnIcon = document.getElementById('btnIcon');
+  const toggleAuth = document.getElementById('toggleAuth');
+  const togglePrompt = document.getElementById('togglePrompt');
 
-// زر التبديل بين تسجيل الدخول وإنشاء الحساب
-toggleAuth.addEventListener('click', (e) => {
-  e.preventDefault();
-  isLoginMode = !isLoginMode;
-  errorMessage.style.display = 'none';
+  // زر التبديل بين تسجيل الدخول وإنشاء الحساب
+  if (toggleAuth) {
+    toggleAuth.addEventListener('click', (e) => {
+      e.preventDefault();
+      isLoginMode = !isLoginMode;
+      if (errorMessage) errorMessage.style.display = 'none';
 
-  if (isLoginMode) {
-    formTitle.textContent = 'تسجيل الدخول';
-    btnText.textContent = 'تسجيل الدخول';
-    btnIcon.className = 'fa-solid fa-right-to-bracket';
-    togglePrompt.childNodes[0].textContent = 'ليس لديك حساب؟ ';
-    toggleAuth.textContent = 'إنشاء حساب جديد';
-  } else {
-    formTitle.textContent = 'إنشاء حساب جديد';
-    btnText.textContent = 'إنشاء الحساب';
-    btnIcon.className = 'fa-solid fa-user-plus';
-    togglePrompt.childNodes[0].textContent = 'لديك حساب بالفعل؟ ';
-    toggleAuth.textContent = 'تسجيل الدخول';
+      if (isLoginMode) {
+        if (formTitle) formTitle.textContent = 'تسجيل الدخول';
+        if (btnText) btnText.textContent = 'تسجيل الدخول';
+        if (btnIcon) btnIcon.className = 'fa-solid fa-right-to-bracket';
+        if (togglePrompt) togglePrompt.childNodes[0].textContent = 'ليس لديك حساب؟ ';
+        if (toggleAuth) toggleAuth.textContent = 'إنشاء حساب جديد';
+      } else {
+        if (formTitle) formTitle.textContent = 'إنشاء حساب جديد';
+        if (btnText) btnText.textContent = 'إنشاء الحساب';
+        if (btnIcon) btnIcon.className = 'fa-solid fa-user-plus';
+        if (togglePrompt) togglePrompt.childNodes[0].textContent = 'لديك حساب بالفعل؟ ';
+        if (toggleAuth) toggleAuth.textContent = 'تسجيل الدخول';
+      }
+    });
+  }
+
+  // التعامل مع تقديم النموذج
+  if (authForm) {
+    authForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+     
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+     
+      if (errorMessage) errorMessage.style.display = 'none';
+
+      if (isLoginMode) {
+        // تسجيل الدخول
+        auth.signInWithEmailAndPassword(email, password)
+          .then(() => {
+            window.location.href = "index.html";
+          })
+          .catch((error) => {
+            if (errorMessage) {
+              errorMessage.style.display = 'block';
+              if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                errorMessage.textContent = 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+              } else {
+                errorMessage.textContent = 'حدث خطأ: ' + error.message;
+              }
+            }
+          });
+      } else {
+        // إنشاء حساب جديد
+        auth.createUserWithEmailAndPassword(email, password)
+          .then(() => {
+            window.location.href = "index.html";
+          })
+          .catch((error) => {
+            if (errorMessage) {
+              errorMessage.style.display = 'block';
+              if (error.code === 'auth/email-already-in-use') {
+                errorMessage.textContent = 'هذا البريد الإلكتروني مستخدم بالفعل.';
+              } else if (error.code === 'auth/weak-password') {
+                errorMessage.textContent = 'كلمة المرور ضعيفة. يجب أن تتكون من 6 رموز على الأقل.';
+              } else {
+                errorMessage.textContent = 'حدث خطأ أثناء التسجيل: ' + error.message;
+              }
+            }
+          });
+      }
+    });
   }
 });
-
-// التعامل مع تقديم النموذج
-authForm.addEventListener('submit', (e) => {
-  e.preventDefault();
- 
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
- 
-  errorMessage.style.display = 'none';
-
-  if (isLoginMode) {
-    // عملية تسجيل الدخول
-    auth.signInWithEmailAndPassword(email, password)
-      .then(() => {
-        window.location.href = "index.html";
-      })
-      .catch((error) => {
-        errorMessage.style.display = 'block';
-        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-          errorMessage.textContent = 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
-        } else {
-          errorMessage.textContent = 'حدث خطأ: ' + error.message;
-        }
-      });
-  } else {
-    // عملية إنشاء حساب جديد
-    auth.createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        window.location.href = "index.html";
-      })
-      .catch((error) => {
-        errorMessage.style.display = 'block';
-        if (error.code === 'auth/email-already-in-use') {
-          errorMessage.textContent = 'هذا البريد الإلكتروني مستخدم بالفعل.';
-        } else if (error.code === 'auth/weak-password') {
-          errorMessage.textContent = 'كلمة المرور ضعيفة. يجب أن تتكون من 6 رموز على الأقل.';
-        } else {
-          errorMessage.textContent = 'حدث خطأ أثناء التجسيل: ' + error.message;
-        }
-      });
-  }
-});
-

@@ -13,9 +13,11 @@
 </head>
 <body>
 
-    <!-- الهيدر العلوي الأصلي -->
+    <!-- الهيدر العلوي -->
     <header class="top-header">
-        <button id="menuToggle" class="menu-toggle-btn">
+        <button id="menuToggle" class="menu-toggle-btn" aria-label="Toggle Menu">
+
+
             <i class="fa-solid fa-bars"></i>
         </button>
         <div class="header-title">
@@ -27,7 +29,6 @@
         </div>
         <button class="lang-btn">EN</button>
     </header>
-
     <div class="app-container">
         <!-- اللوحة الجانبية (Sidebar) -->
         <aside id="sidebar" class="sidebar">
@@ -70,11 +71,11 @@
 
                 <div class="input-inline-row">
                     <div>
-                        <label>القدرة المطلوبة:</label>
+                        <label for="reqCap">القدرة المطلوبة:</label>
                         <input type="number" id="reqCap" value="31"> <small>kWp</small>
                     </div>
                     <div>
-                        <label>قدرة اللوح:</label>
+                        <label for="panelCap">قدرة اللوح:</label>
                         <input type="number" id="panelCap" value="590"> <small>W</small>
                     </div>
                 </div>
@@ -95,6 +96,11 @@
                 <button id="exportReportBtn" class="btn-outline-full"><i class="fa-solid fa-file-pdf"></i> تصدير التقرير</button>
             </div>
 
+            <!-- حقوق التطوير والتصميم -->
+            <div class="developer-credits">
+                Designed & Developed by <span>Shahd Saif</span>
+            </div>
+
         </aside>
 
         <!-- الخريطة -->
@@ -103,12 +109,15 @@
         </main>
     </div>
 
-    <!-- Leaflet JS -->
+    <!-- Leaflet JS & Draw JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+   
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+   
+    <!-- App Logic -->
     <script src="app.js"></script>
 </body>
 </html>

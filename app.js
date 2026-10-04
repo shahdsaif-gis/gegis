@@ -1,3 +1,9 @@
+// حماية الصفحة والتوجيه المباشر قبل تحميل أي شيء
+firebase.auth().onAuthStateChanged((user) => {
+  if (!user) {
+    window.location.href = "login.html";
+  }
+});
 // ==================== 1. نظام الحماية عبر Firebase ====================
 const firebaseConfig = {
   apiKey: "AIzaSyBj0y6uQxMGyWFOMREuUjoTPyvqOUqA_JM",

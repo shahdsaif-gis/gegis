@@ -121,4 +121,23 @@ body.login-body { background-color: #0b1329 !important; display: flex !important
     z-index: 10;
 }
 
+/* للشاشات الصغيرة (الهواتف) */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(100%
+        transition: transform 0.3s ease-in-out;
+        position: fixed;
+        right: 0;
+        top: 0;
+        height: 100vh;
+        z-index: 1000;
+        background: #ffffff; /* أو لون الخلفية لديك */
+    }
+
+    /* عندما يتم الضغط على الزر ويتم تفعيل القائمة */
+    .sidebar.active {
+        transform: translateX(0);
+    }
+}
+
 

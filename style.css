@@ -1,395 +1,80 @@
-/* ==================== 1. التنسيقات العامة والخطوط ==================== */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Tajawal', sans-serif; background-color: #0b1329; color: #f8fafc; direction: rtl; height: 100vh; overflow: hidden; }
 
-body {
-    font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #0b1329;
-    color: #f8fafc;
-    direction: rtl;
-    height: 100vh;
-    overflow: hidden;
-}
+.top-header { height: 60px; background-color: #0f172a; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; border-bottom: 1px solid #1e293b; z-index: 2000; }
+.menu-toggle-btn { background: none; border: none; color: #f59e0b; font-size: 1.5rem; cursor: pointer; }
+.header-title { display: flex; align-items: center; gap: 0.6rem; }
+.header-icon { color: #f59e0b; font-size: 1.6rem; }
+.header-title h1 { font-size: 1.15rem; color: #ffffff; }
+.header-title span { font-size: 0.75rem; color: #94a3b8; display: block; }
+.lang-btn { background-color: #f59e0b; color: #0f172a; border: none; padding: 0.35rem 0.9rem; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-html[dir="ltr"] body {
-    direction: ltr;
-    font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif;
-}
+.app-container { display: flex; height: calc(100vh - 60px); width: 100vw; position: relative; }
+.sidebar { width: 350px; min-width: 350px; background-color: #111a2e; padding: 1rem; display: flex; flex-direction: column; gap: 0.85rem; overflow-y: auto; z-index: 1500; border-left: 1px solid #1e293b; }
 
-/* ==================== 2. الهيدر العلوي ==================== */
-.top-header {
-    height: 60px;
-    background-color: #0f172a;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 1rem;
-    border-bottom: 1px solid #1e293b;
-    z-index: 2000;
-}
+.card { background-color: #17233d; border: 1px solid #233354; border-radius: 8px; padding: 0.85rem; }
+.card h3 { font-size: 0.9rem; color: #f59e0b; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem; }
+.checkbox-group { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.stat-card { text-align: center; }
+.stat-label { display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.2rem; }
+.stat-value { font-size: 0.95rem; color: #ffffff; }
+.gold-text { color: #f59e0b !important; }
+.highlight-card { text-align: center; }
 
-.menu-toggle-btn {
-    background: none;
-    border: none;
-    color: #f59e0b;
-    font-size: 1.5rem;
-    cursor: pointer;
-}
+.btn-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+.btn-gold { flex: 1; background-color: #f59e0b; color: #0f172a; border: none; padding: 0.5rem; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+.btn-outline { background: none; border: 1px solid #334155; color: #ffffff; padding: 0.5rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
 
-.header-title {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-}
+.input-inline-row { display: flex; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.6rem; font-size: 0.8rem; }
+.input-inline-row input { width: 70px; padding: 0.25rem 0.4rem; background: #0b1329; border: 1px solid #334155; color: #fff; border-radius: 4px; text-align: center; }
+.info-row-text { display: flex; justify-content: space-between; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.6rem; }
+.area-result-box { background-color: #0b1329; padding: 0.55rem; border-radius: 6px; font-size: 0.8rem; color: #38bdf8; text-align: center; }
 
-.header-icon {
-    color: #f59e0b;
-    font-size: 1.6rem;
-}
+.bottom-actions { display: flex; gap: 0.5rem; margin-top: auto; }
+.btn-gold-full { flex: 1; background-color: #f59e0b; color: #0f172a; border: none; padding: 0.6rem; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
+.btn-outline-full { flex: 1; background: none; border: 1px solid #334155; color: #cbd5e1; padding: 0.6rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
 
-.header-title h1 {
-    font-size: 1.15rem;
-    color: #ffffff;
-}
+.developer-credits { text-align: center; font-size: 0.82rem; color: #94a3b8; padding-top: 0.8rem; margin-top: 0.6rem; border-top: 1px solid #1e293b; }
+.developer-credits span { color: #f59e0b; font-weight: 700; }
 
-.header-title span {
-    font-size: 0.75rem;
-    color: #94a3b8;
-    display: block;
-}
+.map-container { flex-grow: 1; height: 100%; }
+#map { width: 100%; height: 100%; }
 
-.lang-btn {
-    background-color: #f59e0b;
-    color: #0f172a;
-    border: none;
-    padding: 0.35rem 0.9rem;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+/* Modal Custom Styles */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 3000; }
+.modal-card { background: #111a2e; border: 1px solid #233354; border-radius: 12px; width: 90%; max-width: 440px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+.modal-header-blue { padding: 1rem; background: #17233d; border-bottom: 1px solid #233354; text-align: center; }
+.modal-header-blue h3 { font-size: 1rem; color: #38bdf8; }
+.modal-body-dark { padding: 1.2rem; display: flex; flex-direction: column; gap: 1rem; }
+.form-group-custom label { display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.4rem; }
+.form-group-custom input, .form-group-custom select { width: 100%; padding: 0.6rem; background: #0b1329; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 0.9rem; }
 
-.lang-btn:hover {
-    background-color: #d97706;
-}
+.modal-buttons { display: flex; gap: 0.6rem; margin-top: 0.5rem; }
+.btn-green { flex: 1; background: #10b981; color: #fff; border: none; padding: 0.6rem; border-radius: 6px; font-weight: bold; cursor: pointer; }
+.btn-grey { background: #475569; color: #fff; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; }
 
-/* ==================== 3. الهيكل الرئيسي للتطبيق ==================== */
-.app-container {
-    display: flex;
-    height: calc(100vh - 60px);
-    width: 100vw;
-    position: relative;
-}
+/* Consultancy Report Card Styles */
+.consultancy-report-card { background: #ffffff; color: #0f172a; width: 92%; max-width: 580px; border-radius: 12px; padding: 1.5rem; max-height: 90vh; overflow-y: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+.rep-header-row { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0284c7; padding-bottom: 0.8rem; margin-bottom: 1rem; }
+.rep-date-dev { font-size: 0.78rem; color: #64748b; }
+.rep-brand-box { text-align: left; }
+.rep-brand-box h2 { color: #d97706; font-size: 1.3rem; margin: 0; }
+.rep-brand-box span { font-size: 0.75rem; color: #475569; font-weight: 500; }
 
-/* ==================== 4. اللوحة الجانبية (Sidebar) ==================== */
-.sidebar {
-    width: 350px;
-    min-width: 350px;
-    background-color: #111a2e;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-    overflow-y: auto;
-    z-index: 1500;
-    border-left: 1px solid #1e293b;
-    transition: transform 0.3s ease;
-}
+.sec-title-blue { color: #0284c7; font-size: 0.95rem; margin-bottom: 0.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3rem; }
+.sec-title-green { color: #059669; font-size: 0.95rem; margin-bottom: 0.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3rem; }
 
-html[dir="ltr"] .sidebar {
-    border-left: none;
-    border-right: 1px solid #1e293b;
-}
+.rep-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; font-size: 0.82rem; color: #334155; margin-bottom: 1rem; background: #f8fafc; padding: 0.8rem; border-radius: 8px; }
+.rep-grid-2 strong { color: #0f172a; }
 
-.card {
-    background-color: #17233d;
-    border: 1px solid #233354;
-    border-radius: 8px;
-    padding: 0.85rem;
-}
+.rep-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; font-size: 0.82rem; }
+.rep-table th { background: #0f172a; color: #ffffff; padding: 0.5rem; text-align: right; }
+.rep-table td { padding: 0.55rem; border-bottom: 1px solid #e2e8f0; color: #334155; }
 
-.card h3 {
-    font-size: 0.9rem;
-    color: #f59e0b;
-    margin-bottom: 0.6rem;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
+.rep-actions-row { display: flex; gap: 0.6rem; margin-top: 1.2rem; }
+.btn-dark-navy { flex: 1; background: #0f172a; color: #ffffff; border: none; padding: 0.6rem; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-.checkbox-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-}
+.edge-tooltip { background: rgba(15, 23, 42, 0.9); border: 1px solid #f59e0b; color: #ffffff; font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
 
-.grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-}
-
-.stat-card {
-    text-align: center;
-}
-
-.stat-label {
-    display: block;
-    font-size: 0.75rem;
-    color: #94a3b8;
-    margin-bottom: 0.2rem;
-}
-
-.stat-value {
-    font-size: 0.95rem;
-    color: #ffffff;
-}
-
-.gold-text {
-    color: #f59e0b !important;
-}
-
-.highlight-card {
-    text-align: center;
-}
-
-.btn-row {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-}
-
-.btn-gold {
-    flex: 1;
-    background-color: #f59e0b;
-    color: #0f172a;
-    border: none;
-    padding: 0.5rem;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 0.85rem;
-}
-
-.btn-outline {
-    background: none;
-    border: 1px solid #334155;
-    color: #ffffff;
-    padding: 0.5rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.85rem;
-}
-
-.input-inline-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0.6rem;
-    font-size: 0.8rem;
-}
-
-.input-flex {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    margin-top: 0.2rem;
-}
-
-.input-inline-row input {
-    width: 65px;
-    padding: 0.25rem 0.4rem;
-    background: #0b1329;
-    border: 1px solid #334155;
-    color: #fff;
-    border-radius: 4px;
-    text-align: center;
-}
-
-.info-row-text {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8rem;
-    color: #cbd5e1;
-    margin-bottom: 0.6rem;
-}
-
-.area-result-box {
-    background-color: #0b1329;
-    padding: 0.55rem;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    color: #38bdf8;
-    text-align: center;
-}
-
-.bottom-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: auto;
-}
-
-.btn-gold-full {
-    flex: 1;
-    background-color: #f59e0b;
-    color: #0f172a;
-    border: none;
-    padding: 0.6rem;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 0.85rem;
-    cursor: pointer;
-}
-
-.btn-outline-full {
-    flex: 1;
-    background: none;
-    border: 1px solid #334155;
-    color: #cbd5e1;
-    padding: 0.6rem;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    cursor: pointer;
-}
-
-/* ==================== 5. حقوق المطور المنسقة بالأصفر الدافي ==================== */
-.developer-credits {
-    text-align: center;
-    font-size: 0.82rem;
-    color: #94a3b8;
-    padding-top: 0.8rem;
-    margin-top: 0.6rem;
-    border-top: 1px solid #1e293b;
-    font-family: 'Poppins', sans-serif;
-    letter-spacing: 0.5px;
-}
-
-.developer-credits span {
-    color: #f59e0b; /* أصفر دافي */
-    font-weight: 700;
-    font-size: 0.88rem;
-}
-
-/* ==================== 6. الخريطة (Map) ==================== */
-.map-container {
-    flex-grow: 1;
-    height: 100%;
-}
-
-#map {
-    width: 100%;
-    height: 100%;
-}
-
-/* ==================== 7. نافذة التقرير (Modal) ==================== */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.75);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 3000;
-}
-
-.modal-content {
-    background: #17233d;
-    border: 1px solid #f59e0b;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 500px;
-    padding: 1.5rem;
-    position: relative;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-}
-
-.modal-close {
-    position: absolute;
-    top: 10px;
-    left: 15px;
-    background: none;
-    border: none;
-    color: #f59e0b;
-    font-size: 1.8rem;
-    cursor: pointer;
-}
-
-html[dir="ltr"] .modal-close {
-    left: auto;
-    right: 15px;
-}
-
-.report-header {
-    text-align: center;
-    margin-bottom: 1.2rem;
-}
-
-.report-icon {
-    font-size: 2.2rem;
-    color: #f59e0b;
-    margin-bottom: 0.4rem;
-}
-
-.report-header h2 {
-    font-size: 1.1rem;
-    color: #ffffff;
-}
-
-.report-body {
-    background: #0b1329;
-    padding: 1rem;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-}
-
-.report-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.85rem;
-    border-bottom: 1px dashed #233354;
-    padding-bottom: 0.4rem;
-}
-
-.report-row:last-child {
-    border-bottom: none;
-}
-
-.report-row span {
-    color: #94a3b8;
-}
-
-.report-row strong {
-    color: #ffffff;
-}
-
-/* ==================== 8. الاستجابة مع التلفون ==================== */
-@media (max-width: 768px) {
-    .sidebar {
-        position: absolute;
-        top: 0;
-        right: 0;
-        height: 100%;
-        transform: translateX(100%);
-        box-shadow: -5px 0 15px rgba(0,0,0,0.5);
-    }
-
-    html[dir="ltr"] .sidebar {
-        right: auto;
-        left: 0;
-        transform: translateX(-100%);
-    }
-
-    .sidebar.active {
-        transform: translateX(0) !important;
-    }
-}
 

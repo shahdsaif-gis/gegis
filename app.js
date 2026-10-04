@@ -16,7 +16,7 @@ if (typeof firebase !== 'undefined') {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-
+let currentLang = 'ar';
     // ==================== 2. زر القائمة الجانبية (Sidebar Toggle للموبايل) ====================
     const menuToggle = document.getElementById('menuToggle');
     const sidebar = document.getElementById('sidebar');
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-     // ==================== 3. زر تبديل اللغة (AR / EN) ====================
+      // ==================== 3. زر تبديل اللغة (AR / EN) الشامل ====================
     const langBtn = document.getElementById('langBtn');
     let currentLang = 'ar';
 
@@ -46,13 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
             document.documentElement.lang = currentLang;
             langBtn.textContent = currentLang === 'ar' ? 'EN' : 'AR';
 
-            // ترجمة العنوان الفرعي في الشريط العلوي
+            // 1. ترجمة العنوان الفرعي في الشريط العلوي
             const subtitle = document.querySelector('.header-title span');
             if (subtitle) {
                 subtitle.textContent = currentLang === 'ar' ? 'تقييم الملاءة المكانية والمنظومة' : 'Spatial Suitability & System Evaluation';
             }
 
-            // ترجمة عناوين بطاقات القائمة الجانبية بالكامل
+            // 2. ترجمة عناوين بطاقات القائمة الجانبية بالكامل
             const cards = document.querySelectorAll('.sidebar .card h3');
             if (cards.length >= 4) {
                 if (currentLang === 'en') {
@@ -68,24 +68,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // ترجمة أزرار الرسم والتراجع بدقة
+            // 3. ترجمة أزرار الرسم والتراجع
             const drawBtn = document.getElementById('drawPolyBtn');
             const undoBtn = document.getElementById('undoBtn');
             if (drawBtn) drawBtn.innerHTML = currentLang === 'ar' ? '<i class="fa-solid fa-draw-polygon"></i> رسم المضلع' : '<i class="fa-solid fa-draw-polygon"></i> Draw Polygon';
             if (undoBtn) undoBtn.innerHTML = currentLang === 'ar' ? '<i class="fa-solid fa-rotate-left"></i> تراجع' : '<i class="fa-solid fa-rotate-left"></i> Undo';
 
-            // ترجمة الأزرار السفلية (حاسبة الأحمال وتصدير التقرير)
+            // 4. ترجمة الأزرار السفلية
             const calcLoadBtn = document.getElementById('calcLoadBtn');
             const exportReportBtn = document.getElementById('exportReportBtn');
             if (calcLoadBtn) calcLoadBtn.textContent = currentLang === 'ar' ? 'حاسبة الأحمال' : 'Load Calculator';
             if (exportReportBtn) exportReportBtn.textContent = currentLang === 'ar' ? 'تصدير التقرير الهندسي' : 'Export Engineering Report';
 
+            // 5. إعادة تحديث وحساب بيانات التقرير والبطاقات باللغة الجديدة فوراً
             if (typeof updateCalculations === 'function') {
                 updateCalculations();
             }
         });
     }
-
 
 
 
@@ -275,6 +275,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (exportReportBtn && reportModal) {
         exportReportBtn.addEventListener('click', () => {
+      
+        // --- 1. ضعي متغيرات النصوص هنا لتتغير تلقائياً حسب اللغة ---
+        const repTitle = currentLang === 'ar' ? 'تقرير الاستشارات هندسياً' : 'Solar Engineering Consultancy Report';
+        const labelElevation = currentLang === 'ar' ? 'الارتفاع عن البحر' : 'Elevation Above Sea Level';
+        const labelSolar = currentLang === 'ar' ? 'الإشعاع الشمسي (GHI)' : 'Solar Irradiance (GHI)';
+        const labelArea = currentLang === 'ar' ? 'المساحة المحسوبة' : 'Calculated Area';
+        const labelPanels = currentLang === 'ar' ? 'عدد الألواح' : 'Number of Panels';
+        const labelTotalPower = currentLang === 'ar' ? 'القدرة الإجمالية' : 'Total Capacity';
+        const labelInverter = currentLang === 'ar' ? 'محول الطاقة (Inverter)' : 'Power Inverter';
+        const labelBattery = currentLang === 'ar' ? 'بنك البطاريات المطلوب' : 'Required Battery Bank';
             const totalWatt = parseFloat(document.getElementById('loadWattInput') ? document.getElementById('loadWattInput').value : 31000) || 31000;
             const totalKW = (totalWatt / 1000).toFixed(2);
             const panelW = panelCapInput ? panelCapInput.value : 400;

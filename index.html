@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GEGIS Analytics - تقييم الملاءة المكانية والمنظومة</title>
-    <!-- Leaflet & Draw CSS -->
+    <!-- Leaflet & Leaflet Draw CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,84 +18,83 @@
     <!-- الهيدر العلوي -->
     <header class="top-header">
         <button id="menuToggle" class="menu-toggle-btn" aria-label="Toggle Menu">
-
-
             <i class="fa-solid fa-bars"></i>
         </button>
         <div class="header-title">
             <i class="fa-solid fa-sun header-icon"></i>
             <div>
-                <h1>GEGIS Analytics</h1>
-                <span>تقييم الملاءة المكانية والمنظومة</span>
+                <h1 data-i18n="title">GEGIS Analytics</h1>
+                <span data-i18n="subtitle">تقييم الملاءة المكانية والمنظومة</span>
             </div>
         </div>
-        <button class="lang-btn">EN</button>
+        <button class="lang-btn" id="langBtn">EN</button>
     </header>
+
     <div class="app-container">
         <!-- اللوحة الجانبية (Sidebar) -->
         <aside id="sidebar" class="sidebar">
            
             <!-- 1. الطبقات المكانية المتاحة -->
             <div class="card">
-                <h3><i class="fa-solid fa-layer-group"></i> الطبقات المكانية المتاحة</h3>
+                <h3><i class="fa-solid fa-layer-group"></i> <span data-i18n="layersTitle">الطبقات المكانية المتاحة</span></h3>
                 <div class="checkbox-group">
-                    <label><input type="checkbox" id="layerGHI"> إشعاع (GHI)</label>
-                    <label><input type="checkbox" id="layerDEM"> تضاريس (DEM)</label>
-                    <label><input type="checkbox" id="layerWind"> سرعة الرياح</label>
+                    <label><input type="checkbox" id="layerGHI"> <span data-i18n="layerGHI">إشعاع (GHI)</span></label>
+                    <label><input type="checkbox" id="layerDEM"> <span data-i18n="layerDEM">تضاريس (DEM)</span></label>
+                    <label><input type="checkbox" id="layerWind"> <span data-i18n="layerWind">سرعة الرياح</span></label>
                 </div>
             </div>
 
             <!-- 2. بطاقات نتائج التحليل -->
             <div class="grid-2">
                 <div class="card stat-card">
-                    <span class="stat-label">الإشعاع الشمسي</span>
+                    <span class="stat-label" data-i18n="solarRad">الإشعاع الشمسي</span>
                     <strong class="stat-value" id="solarVal">2.174 <small>kWh/m²</small></strong>
                 </div>
                 <div class="card stat-card">
-                    <span class="stat-label">الارتفاع / الرياح</span>
+                    <span class="stat-label" data-i18n="elevWind">الارتفاع / الرياح</span>
                     <strong class="stat-value" id="elevWindVal">380m | 15km/h</strong>
                 </div>
             </div>
 
             <div class="card stat-card highlight-card">
-                <span class="stat-label">درجة الملاءة</span>
+                <span class="stat-label" data-i18n="suitability">درجة الملاءة</span>
                 <strong class="stat-value gold-text" id="suitabilityVal">S1 (94%)</strong>
             </div>
 
             <!-- 3. المساحة والألواح الشمسية -->
             <div class="card">
-                <h3><i class="fa-solid fa-border-all"></i> المساحة والألواح الشمسية</h3>
+                <h3><i class="fa-solid fa-border-all"></i> <span data-i18n="solarAreaTitle">المساحة والألواح الشمسية</span></h3>
                
                 <div class="btn-row">
-                    <button id="drawPolyBtn" class="btn-gold"><i class="fa-solid fa-pen"></i> رسم المضلع</button>
-                    <button id="undoBtn" class="btn-outline"><i class="fa-solid fa-rotate-left"></i> تراجع</button>
+                    <button id="drawPolyBtn" class="btn-gold"><i class="fa-solid fa-pen"></i> <span data-i18n="drawPoly">رسم المضلع</span></button>
+                    <button id="undoBtn" class="btn-outline"><i class="fa-solid fa-rotate-left"></i> <span data-i18n="undo">تراجع</span></button>
                 </div>
 
                 <div class="input-inline-row">
                     <div>
-                        <label for="reqCap">القدرة المطلوبة:</label>
-                        <input type="number" id="reqCap" value="31"> <small>kWp</small>
+                        <label for="reqCap" data-i18n="reqCap">القدرة المطلوبة:</label>
+                        <div class="input-flex"><input type="number" id="reqCap" value="25"> <small>kWp</small></div>
                     </div>
                     <div>
-                        <label for="panelCap">قدرة اللوح:</label>
-                        <input type="number" id="panelCap" value="590"> <small>W</small>
+                        <label for="panelCap" data-i18n="panelCap">قدرة اللوح:</label>
+                        <div class="input-flex"><input type="number" id="panelCap" value="590"> <small>W</small></div>
                     </div>
                 </div>
 
                 <div class="info-row-text">
-                    <span>عدد الألواح: <strong id="panelCount">53 لوح</strong></span>
-                    <span>زاوية التعامد: <strong id="tiltVal">-</strong></span>
+                    <span><span data-i18n="panelCountLabel">عدد الألواح:</span> <strong id="panelCount">43 لوح</strong></span>
+                    <span><span data-i18n="tiltValLabel">زاوية التعامد:</span> <strong id="tiltVal">15.5°</strong></span>
                 </div>
 
-                <div class="area-result-box">
-                    المساحة الكلية / المطلوبة: <strong id="areaCalc">137.80 m² (مطلوبة)</strong>
+                <div class="area-result-box" id="areaCalcBox">
+                    <span data-i18n="areaCalcLabel">المساحة الكلية / المطلوبة:</span> <strong id="areaCalc">111.80 m²</strong>
                 </div>
             </div>
 
             <!-- أزرار التقرير والأحمال -->
             <div class="bottom-actions">
-                <button id="calcLoadBtn" class="btn-gold-full"><i class="fa-solid fa-calculator"></i> حاسبة الأحمال</button>
-                <button id="exportReportBtn" class="btn-outline-full"><i class="fa-solid fa-file-pdf"></i> تصدير التقرير</button>
+                <button id="calcLoadBtn" class="btn-gold-full"><i class="fa-solid fa-calculator"></i> <span data-i18n="calcLoad">حاسبة الأحمال</span></button>
+                <button id="exportReportBtn" class="btn-outline-full"><i class="fa-solid fa-file-pdf"></i> <span data-i18n="exportReport">تصدير التقرير</span></button>
             </div>
 
             <!-- حقوق التطوير والتصميم -->
@@ -109,6 +110,29 @@
         </main>
     </div>
 
+    <!-- نافذة التقرير القديمة المنسقة -->
+    <div id="reportModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button id="closeReportBtn" class="modal-close">&times;</button>
+            <div class="report-header">
+                <i class="fa-solid fa-file-contract report-icon"></i>
+                <h2>التقرير الهندسي الكامل للتصميم الشمسي</h2>
+            </div>
+            <div class="report-body" id="reportPrintArea">
+                <div class="report-row"><span>الموقع المحدد:</span> <strong id="repLoc">الخرطوم (15.500, 32.559)</strong></div>
+                <div class="report-row"><span>الإشعاع الشمسي اليومي:</span> <strong id="repSolar">5.944 kWh/m²</strong></div>
+                <div class="report-row"><span>سرعة الرياح / الارتفاع:</span> <strong id="repWind">13 km/h | 380m</strong></div>
+                <div class="report-row"><span>القدرة التركيبية المستهدفة:</span> <strong id="repCap">25 kWp</strong></div>
+                <div class="report-row"><span>عدد الألواح الشمسية (590W):</span> <strong id="repPanels">43 لوح</strong></div>
+                <div class="report-row"><span>زاوية التعامد والميل المثالية:</span> <strong id="repTilt">15.5°</strong></div>
+                <div class="report-row"><span>المساحة المطلوبة / المرسومة:</span> <strong id="repArea">111.80 m²</strong></div>
+                <div class="report-row"><span>الإنتاج السنوي المتوقع:</span> <strong id="repGen">38,500 kWh/سنة</strong></div>
+                <div class="report-row"><span>درجة الملاءة المكانية:</span> <strong id="repSuit" class="gold-text">S1 - عالية جداً (94%)</strong></div>
+            </div>
+            <button id="printReportBtn" class="btn-gold-full" style="margin-top:1rem;"><i class="fa-solid fa-print"></i> طباعة / حفظ كـ PDF</button>
+        </div>
+    </div>
+
     <!-- Leaflet JS & Draw JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
@@ -117,8 +141,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
    
-    <!-- App Logic -->
     <script src="app.js"></script>
 </body>
 </html>
-

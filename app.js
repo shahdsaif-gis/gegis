@@ -1,4 +1,4 @@
-// ==================== 1. نظام الحماية عبر Firebase ====================
+// ==================== 1. نظام الحماية وتسجيل الدخول ====================
 const firebaseConfig = {
   apiKey: "AIzaSyBj0y6uQxMGyWFOMREuUjoTPyvqOUqA_JM",
   authDomain: "gegis-f43ca.firebaseapp.com",
@@ -15,7 +15,7 @@ if (typeof firebase !== 'undefined') {
   });
 }
 
-// ==================== 2. القاموس للتحويل بين العربي والإنكليزي ====================
+// ==================== 2. قاموس الترجمة الشامل ====================
 const translations = {
   ar: {
     title: "GEGIS Analytics",
@@ -37,8 +37,9 @@ const translations = {
     areaCalcLabel: "المساحة الكلية / المطلوبة:",
     calcLoad: "حاسبة الأحمال",
     exportReport: "تصدير التقرير",
-    developedBy: "Designed & Developed by",
-    langBtn: "EN"
+    langBtn: "EN",
+    unitPanels: "لوح",
+    unitReq: "مطلوبة"
   },
   en: {
     title: "GEGIS Analytics",
@@ -60,155 +61,128 @@ const translations = {
     areaCalcLabel: "Total / Required Area:",
     calcLoad: "Load Calculator",
     exportReport: "Export Report",
-    developedBy: "Designed & Developed by",
-    langBtn: "AR"
+    langBtn: "AR",
+    unitPanels: "Panels",
+    unitReq: "required"
   }
 };
 
 let currentLang = 'ar';
 
-// ==================== 3. تهيئة الخريطة والبرمجيات ====================
 document.addEventListener('DOMContentLoaded', () => {
-   
-    // تفعيل التبديل بين اللغات (AR / EN)
-    const langBtn = document.querySelector('.lang-btn');
+
+    // ==================== 3. زر القائمة للهواتف وزر اللغات ====================
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const langBtn = document.getElementById('langBtn');
+
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener('click', () => sidebar.classList.toggle('active'));
+    }
+
     if (langBtn) {
         langBtn.addEventListener('click', () => {
             currentLang = currentLang === 'ar' ? 'en' : 'ar';
             document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
             document.documentElement.lang = currentLang;
             langBtn.textContent = translations[currentLang].langBtn;
-            applyTranslations();
+
+            document.querySelectorAll('[data-i18n]').forEach(elem => {
+                const key = elem.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    elem.textContent = translations[currentLang][key];
+                }
+            });
+
+            updateCalculations();
         });
     }
 
-    function applyTranslations() {
-        const t = translations[currentLang];
-       
-        // تحديث النصوص
-        const subtitle = document.querySelector('.header-title span');
-        if (subtitle) subtitle.textContent = t.subtitle;
+    // ==================== 4. تهيئة الخريطة بوضوح عالي جداً ====================
+    const map = L.map('map', { maxZoom: 22 }).setView([15.5007, 32.5599], 13);
 
-        const layersTitle = document.querySelector('.card h3');
-        if (layersTitle) layersTitle.innerHTML = `<i class="fa-solid fa-layer-group"></i> ${t.layersTitle}`;
-
-        const solarRadLabel = document.querySelectorAll('.stat-label')[0];
-        if (solarRadLabel) solarRadLabel.textContent = t.solarRad;
-
-        const elevWindLabel = document.querySelectorAll('.stat-label')[1];
-        if (elevWindLabel) elevWindLabel.textContent = t.elevWind;
-
-        const suitabilityLabel = document.querySelectorAll('.stat-label')[2];
-        if (suitabilityLabel) suitabilityLabel.textContent = t.suitability;
-
-        const drawPolyBtn = document.getElementById('drawPolyBtn');
-        if (drawPolyBtn) drawPolyBtn.innerHTML = `<i class="fa-solid fa-pen"></i> ${t.drawPoly}`;
-
-        const undoBtn = document.getElementById('undoBtn');
-        if (undoBtn) undoBtn.innerHTML = `<i class="fa-solid fa-rotate-left"></i> ${t.undo}`;
-
-        const calcLoadBtn = document.getElementById('calcLoadBtn');
-        if (calcLoadBtn) calcLoadBtn.innerHTML = `<i class="fa-solid fa-calculator"></i> ${t.calcLoad}`;
-
-        const exportReportBtn = document.getElementById('exportReportBtn');
-        if (exportReportBtn) exportReportBtn.innerHTML = `<i class="fa-solid fa-file-pdf"></i> ${t.exportReport}`;
-    }
-
-    // تفعيل زر السايدبار للهواتف
-    const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
-    if (menuToggle && sidebar) {
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-        });
-    }
-
-    // إنشاء الخريطة والزوم
-    const map = L.map('map', { maxZoom: 21 }).setView([15.5007, 32.5599], 12);
-
+    // طبقة الخريطة الرئيسية
     const satelliteImg = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Esri Satellite',
         maxNativeZoom: 18,
-        maxZoom: 21
+        maxZoom: 22
     }).addTo(map);
 
     const labelsLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Esri Labels',
         maxNativeZoom: 18,
-        maxZoom: 21
+        maxZoom: 22
     }).addTo(map);
 
-    const streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'OpenStreetMap',
-        maxZoom: 19
-    });
+    // طبقات مخصصة للتحليل المكاني
+    const ghiLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { opacity: 0.3 });
+    const demLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { opacity: 0.4 });
+    const windLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', { opacity: 0.3 });
 
-    const baseMaps = {
-        "أقمار صناعية + مسميات": L.layerGroup([satelliteImg, labelsLayer]),
-        "خريطة شوارع": streetMap
-    };
-    L.control.layers(baseMaps).addTo(map);
+    // ربط الـ Checkboxes بالتفعيل
+    document.getElementById('layerGHI').addEventListener('change', (e) => e.target.checked ? ghiLayer.addTo(map) : map.removeLayer(ghiLayer));
+    document.getElementById('layerDEM').addEventListener('change', (e) => e.target.checked ? demLayer.addTo(map) : map.removeLayer(demLayer));
+    document.getElementById('layerWind').addEventListener('change', (e) => e.target.checked ? windLayer.addTo(map) : map.removeLayer(windLayer));
 
-    // أدوات الرسم وحساب المساحات
+    // ==================== 5. أدوات الرسم وإظهار أطوال الأضلاع ====================
     const drawnItems = new L.FeatureGroup();
     map.addLayer(drawnItems);
     let drawnAreaSquareMeters = 0;
 
-    function calculateArea(latLngs) {
-        let area = 0;
-        if (latLngs.length > 2) {
-            for (let i = 0; i < latLngs.length; i++) {
-                let p1 = latLngs[i];
-                let p2 = latLngs[(i + 1) % latLngs.length];
-                area += (p2.lng - p1.lng) * (2 + Math.sin(p1.lat * Math.PI / 180) + Math.sin(p2.lat * Math.PI / 180));
-            }
-            area = area * 6378137 * 6378137 * Math.PI / 360;
-        }
-        return Math.abs(area);
-    }
+    // إعداد أداة الرسم مع إظهار أطوال الأضلاع أثناء الرسم
+    const polygonDrawer = new L.Draw.Polygon(map, {
+        showArea: true,
+        metric: true,
+        feet: false,
+        shapeOptions: { color: '#f59e0b', weight: 3 }
+    });
 
-    const drawPolyBtn = document.getElementById('drawPolyBtn');
-    const undoBtn = document.getElementById('undoBtn');
-    let polygonDrawer = new L.Draw.Polygon(map);
-
-    if (drawPolyBtn) {
-        drawPolyBtn.addEventListener('click', () => polygonDrawer.enable());
-    }
-
-    if (undoBtn) {
-        undoBtn.addEventListener('click', () => {
-            drawnItems.clearLayers();
-            drawnAreaSquareMeters = 0;
-            updateCalculations();
-        });
-    }
+    document.getElementById('drawPolyBtn').addEventListener('click', () => polygonDrawer.enable());
+    document.getElementById('undoBtn').addEventListener('click', () => {
+        drawnItems.clearLayers();
+        drawnAreaSquareMeters = 0;
+        updateCalculations();
+    });
 
     map.on(L.Draw.Event.CREATED, (e) => {
         const layer = e.layer;
         drawnItems.clearLayers();
         drawnItems.addLayer(layer);
+
         const latlngs = layer.getLatLngs()[0];
-        drawnAreaSquareMeters = calculateArea(latlngs);
+        let area = 0;
+        if (latlngs.length > 2) {
+            for (let i = 0; i < latlngs.length; i++) {
+                let p1 = latlngs[i];
+                let p2 = latlngs[(i + 1) % latlngs.length];
+                area += (p2.lng - p1.lng) * (2 + Math.sin(p1.lat * Math.PI / 180) + Math.sin(p2.lat * Math.PI / 180));
+            }
+            area = Math.abs(area * 6378137 * 6378137 * Math.PI / 360);
+        }
+        drawnAreaSquareMeters = area;
         updateCalculations();
     });
 
-    // النقر على الخريطة
+    // ==================== 6. النقر لحساب زاوية الميل والمناخ ====================
     let currentMarker = null;
+
     map.on('click', async (e) => {
         if (polygonDrawer._enabled) return;
-        const lat = e.latlng.lat.toFixed(4);
-        const lng = e.latlng.lng.toFixed(4);
+
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
 
         if (currentMarker) map.removeLayer(currentMarker);
         currentMarker = L.marker([lat, lng]).addTo(map);
 
-        const solarValSpan = document.getElementById('solarVal');
-        const elevWindValSpan = document.getElementById('elevWindVal');
+        // حساب زاوية الميل والتعامد المثالية للوح بناءً على خط العرض
+        const optimalTilt = Math.abs(lat).toFixed(1);
+        document.getElementById('tiltVal').textContent = optimalTilt + '°';
 
-        if (solarValSpan) solarValSpan.innerHTML = 'جاري التحميل...';
+        document.getElementById('solarVal').innerHTML = 'جاري...';
 
         try {
-            const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=shortwave_radiation_sum,wind_speed_10m_max&timezone=auto`;
+            const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&daily=shortwave_radiation_sum,wind_speed_10m_max&timezone=auto`;
             const res = await fetch(apiUrl);
             const data = await res.json();
 
@@ -217,40 +191,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 const avgSolarKWh = (avgRadMJ / 3.6).toFixed(3);
                 const avgWind = (data.daily.wind_speed_10m_max.reduce((a, b) => a + b, 0) / data.daily.wind_speed_10m_max.length).toFixed(0);
 
-                if (solarValSpan) solarValSpan.innerHTML = `${avgSolarKWh} <small>kWh/m²</small>`;
-                if (elevWindValSpan) elevWindValSpan.innerHTML = `380m | ${avgWind}km/h`;
+                document.getElementById('solarVal').innerHTML = `${avgSolarKWh} <small>kWh/m²</small>`;
+                document.getElementById('elevWindVal').innerHTML = `380m | ${avgWind}km/h`;
             }
         } catch (err) {
             console.error(err);
         }
     });
 
-    // الحسابات
+    // ==================== 7. الحسابات التلقائية ====================
     const reqCapInput = document.getElementById('reqCap');
     const panelCapInput = document.getElementById('panelCap');
-    const panelCountSpan = document.getElementById('panelCount');
-    const areaCalcSpan = document.getElementById('areaCalc');
 
     function updateCalculations() {
-        const reqKW = parseFloat(reqCapInput ? reqCapInput.value : 0) || 0;
-        const panelW = parseFloat(panelCapInput ? panelCapInput.value : 0) || 590;
+        const reqKW = parseFloat(reqCapInput.value) || 0;
+        const panelW = parseFloat(panelCapInput.value) || 590;
+        const t = translations[currentLang];
 
         if (panelW > 0) {
             const count = Math.ceil((reqKW * 1000) / panelW);
             const reqArea = (count * 2.6).toFixed(2);
 
-            if (panelCountSpan) panelCountSpan.textContent = `${count} ${currentLang === 'ar' ? 'لوح' : 'Panels'}`;
+            document.getElementById('panelCount').textContent = `${count} ${t.unitPanels}`;
 
             if (drawnAreaSquareMeters > 0) {
-                areaCalcSpan.textContent = `${drawnAreaSquareMeters.toFixed(2)} m² / ${reqArea} m²`;
+                document.getElementById('areaCalc').textContent = `${drawnAreaSquareMeters.toFixed(2)} m² / ${reqArea} m²`;
             } else {
-                areaCalcSpan.textContent = `${reqArea} m² (${currentLang === 'ar' ? 'مطلوبة' : 'required'})`;
+                document.getElementById('areaCalc').textContent = `${reqArea} m² (${t.unitReq})`;
             }
         }
     }
 
-    if (reqCapInput) reqCapInput.addEventListener('input', updateCalculations);
-    if (panelCapInput) panelCapInput.addEventListener('input', updateCalculations);
+    reqCapInput.addEventListener('input', updateCalculations);
+    panelCapInput.addEventListener('input', updateCalculations);
+
+    // ==================== 8. نافذة التقرير وحاسبة الأحمال ====================
+    const reportModal = document.getElementById('reportModal');
+   
+    document.getElementById('exportReportBtn').addEventListener('click', () => {
+        document.getElementById('repCap').textContent = reqCapInput.value + ' kWp';
+        document.getElementById('repPanels').textContent = document.getElementById('panelCount').textContent;
+        document.getElementById('repTilt').textContent = document.getElementById('tiltVal').textContent;
+        document.getElementById('repArea').textContent = document.getElementById('areaCalc').textContent;
+        reportModal.style.display = 'flex';
+    });
+
+    document.getElementById('calcLoadBtn').addEventListener('click', () => {
+        alert(currentLang === 'ar' ? 'حاسبة الأحمال الكهربائية: اجمالي الأحمال المقدرة ' + reqCapInput.value + ' kWp' : 'Load Calculator: Total Estimated Load ' + reqCapInput.value + ' kWp');
+    });
+
+    document.getElementById('closeReportBtn').addEventListener('click', () => reportModal.style.display = 'none');
+    document.getElementById('printReportBtn').addEventListener('click', () => window.print());
 
     updateCalculations();
 });

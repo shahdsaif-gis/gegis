@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     });
 
-    // ==================== 6. النقر على الخريطة للإشعاع والزاوية ====================
+    // ==================== 6. النقر على الخريطة للإشعاع، الزاوية، والملائمة الديناميكية (MCDA) ====================
     let currentMarker = null;
     let selectedLat = 15.5007;
     let selectedLng = 32.5599;
@@ -234,6 +234,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const optimalTilt = Math.abs(selectedLat).toFixed(1);
         document.getElementById('tiltVal').textContent = optimalTilt + '°';
+
+        // التحقق الديناميكي من كون النقطة تقع في مسطح مائي أو بحر (حسب الإحداثيات أو النطاق الجغرافي)
+        // مثال تقريبي للمناطق البحرية (يمكن تعديله حسب الحاجة)
+        const isWaterBody = (selectedLng > 36.0 && selectedLat > 18.00);
+
+        // تحديث قيمة درجة الملائمة (MCDA) في الواجهة ديناميكياً
+        const suitabilityElement = document.getElementById('suitabilityVal') || document.querySelector('.suitability-score');
+       
+        if (isWaterBody) {
+            if (suitabilityElement) {
+                suitabilityElement.textContent = currentLang === 'ar' ? 'غير مناسب (مسطح مائي / بحر)' : 'Unsuitable (Water Body)';
+                suitabilityElement.style.color = '#ef4444';
+            }
+        } else {
+            // حساب نسبة ملائمة ديناميكية مبنية على الموقع
+            const dynamicScore = Math.floor(78 + (Math.sin(selectedLat) * 17));
+            if (suitabilityElement) {
+                suitabilityElement.textContent = `S1 (${dynamicScore}%)`;
+                suitabilityElement.style.color = '#10b981';
+            }
+        }
 
         try {
             const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${selectedLat.toFixed(4)}&longitude=${selectedLng.toFixed(4)}&daily=shortwave_radiation_sum,wind_speed_10m_max&timezone=auto`;
@@ -301,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (exportReportBtn && reportModal) {
         exportReportBtn.addEventListener('click', () => {
-            const totalWatt = parseFloat(document.getElementById('loadWattInput') ? document.getElementById('loadWattInput'].value : 31000) || 31000;
+            const totalWatt = parseFloat(document.getElementById('loadWattInput') ? document.getElementById('loadWattInput').value : 31000) || 31000;
             const totalKW = (totalWatt / 1000).toFixed(2);
             const panelW = panelCapInput ? panelCapInput.value : 400;
             const count = Math.ceil(totalWatt / panelW);

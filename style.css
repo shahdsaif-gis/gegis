@@ -231,4 +231,8 @@ body.login-body {
         right: 0;
     }
 }
-
+/* حل مشكلة التمرير في نافذة التقرير الهندسي */
+#reportModal, .report-modal, .modal-content {
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+}

@@ -13,7 +13,7 @@ if (typeof firebase !== 'undefined') {
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   firebase.auth().onAuthStateChanged((user) => {
     // التحقق من الجلسة الحالية لتظهر نافذة الدخول في كل زيارة جديدة للموقع
-    if (!user || !sessionStorage.getItem('gegis_logged_in')) {
+    if (!user) {
       // إذا لم يكن مسجلاً بالجلسة الحالية، نوجهه لصفحة الدخول
       if (!window.location.href.includes("login.html")) {
         window.location.href = "login.html";

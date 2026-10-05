@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>باقات الاشتراكات - GEGIS Analytics</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .pricing-body {
+            background-color: #0b1329 !important;
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #ffffff;
+        }
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .pricing-header h1 {
+            color: #f59e0b;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .pricing-header p {
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1100px;
+            margin-bottom: 2rem;
+        }
+        .pricing-card {
+            background: #111a2e;
+            border: 1px solid #233354;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            position: relative;
+        }
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            border-color: #f59e0b;
+        }
+        .pricing-card.featured {
+            border: 2px solid #f59e0b;
+        }
+        .badge-popular {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #f59e0b;
+            color: #0b1329;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .pricing-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+        .price {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #f59e0b;
+            margin-bottom: 1.5rem;
+        }
+        .price span {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 2rem 0;
+            text-align: right;
+        }
+        .features-list li {
+            padding: 8px 0;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #1e293b;
+        }
+        .features-list li i {
+            color: #10b981;
+            margin-left: 8px;
+        }
+        .btn-subscribe {
+            display: inline-block;
+            width: 100%;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #ffffff;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.3s;
+            box-sizing: border-box;
+        }
+        .btn-subscribe:hover {
+            opacity: 0.9;
+        }
+        /* نافذة الدفع المنبثقة (Modal) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-box {
+            background: #111a2e;
+            border: 1px solid #233354;
+            border-radius: 14px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            text-align: right;
+            box-sizing: border-box;
+        }
+        .modal-box h3 {
+            color: #f59e0b;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        .modal-box p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .modal-box input {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 0.5rem 0 1rem 0;
+            background: #0b1329;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #fff;
+            box-sizing: border-box;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+        .btn-close {
+            background: #334155;
+            color: #fff;
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .back-link {
+            color: #94a3b8;
+            text-decoration: none;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .back-link:hover {
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body class="pricing-body">
+
+    <div class="pricing-header">
+        <h1>باقات اشتراكات GEGIS Analytics</h1>
+        <p>اختر الباقة المناسبة لاحتياجاتك الهندسية واستمتع بكافة مميزات التحليل المكاني</p>
+    </div>
+
+    <div class="pricing-grid">
+        <!-- الباقة التجريبية -->
+        <div class="pricing-card">
+            <h3>الباقة التجريبية</h3>
+            <div class="price">مجاناً <span>/ للأبد</span></div>
+            <ul class="features-list">
+                <li><i class="fa-solid fa-check"></i> تصفح الخريطة والطبقات الأساسية</li>
+                <li><i class="fa-solid fa-check"></i> قياس المساحات المضلعة</li>
+                <li><i class="fa-solid fa-check"></i> حساب الإشعاع الشمسي الأساسي</li>
+            </ul>
+            <a href="index.html" class="btn-subscribe" style="background: #334155;">ابدأ مجاناً</a>
+        </div>
+
+        <!-- الباقة الاحترافية -->
+        <div class="pricing-card featured">
+            <div class="badge-popular">الأكثر طلباً</div>
+            <h3>الباقة الاحترافية (Pro)</h3>
+            <div class="price">$25 <span>/ شهرياً</span></div>
+            <ul class="features-list">
+                <li><i class="fa-solid fa-check"></i> كل مميزات الباقة المجانية</li>
+                <li><i class="fa-solid fa-check"></i> حسابات الملائمة المكانية (MCDA)</li>
+                <li><i class="fa-solid fa-check"></i> حاسبة الأحمال الكهربائية الشاملة</li>
+                <li><i class="fa-solid fa-check"></i> تصدير وطباعة التقارير الهندسية</li>
+            </ul>
+            <button id="proSubBtn" class="btn-subscribe">اشترك الآن</button>
+        </div>
+    </div>
+
+    <!-- نافذة تفاصيل التحويل عبر أوكاش (Modal) -->
+    <div id="paymentModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>تأكيد الاشتراك عبر أوكاش</h3>
+            <p>حولي المبلغ على رقم أوكاش: <strong style="color: #f59e0b;">1813980</strong> (شهد سيف الدين بلال احمد)، ثم املئي البيانات أدناه:</p>
+           
+            <!-- ملاحظة: استبدلي YOUR_FORM_ID برابط حسابك المجاني في Formspree لاستقبال الإيميلات -->
+            <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST" id="subForm">
+                <label style="color: #cbd5e1; font-size: 0.85rem;">الاسم الثلاثي:</label>
+                <input type="text" name="client_name" required placeholder="مثال: محمد أحمد علي">
+
+                <label style="color: #cbd5e1; font-size: 0.85rem;">البريد الإلكتروني (المسجل به في الموقع):</label>
+                <input type="email" name="client_email" required placeholder="example@domain.com">
+
+                <label style="color: #cbd5e1; font-size: 0.85rem;">رقم إيصال التحويل (أوكاش):</label>
+                <input type="text" name="receipt_number" required placeholder="أدخل رقم الإيصال أو مرجع التحويل">
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn-subscribe" style="flex: 2;">إرسال تفاصيل الاشتراك</button>
+                    <button type="button" id="closeModalBtn" class="btn-close" style="flex: 1;">إغلاق</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-right"></i> العودة إلى المنظومة الرئيسية</a>
+
+    <script>
+        const proSubBtn = document.getElementById('proSubBtn');
+        const paymentModal = document.getElementById('paymentModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        proSubBtn.addEventListener('click', () => {
+            paymentModal.style.display = 'flex';
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            paymentModal.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
+

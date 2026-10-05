@@ -1,4 +1,5 @@
-// ==================== 1. نظام الحماية عبر Firebase ====================
+
+// ==================== 1. نظام الحماية عبر Firebase و Session Storage ====================
 const firebaseConfig = {
   apiKey: "AIzaSyBj0y6uQxMGyWFOMREuUjoTPyvqOUqA_JM",
   authDomain: "gegis-f43ca.firebaseapp.com",
@@ -11,12 +12,19 @@ const firebaseConfig = {
 if (typeof firebase !== 'undefined') {
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   firebase.auth().onAuthStateChanged((user) => {
-    if (!user) window.location.href = "login.html";
+    // التحقق من الجلسة الحالية لتظهر نافذة الدخول في كل زيارة جديدة للموقع
+    if (!user || !sessionStorage.getItem('gegis_logged_in')) {
+      // إذا لم يكن مسجلاً بالجلسة الحالية، نوجهه لصفحة الدخول
+      if (!window.location.href.includes("login.html")) {
+        window.location.href = "login.html";
+      }
+    }
   });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-let currentLang = 'ar';
+    let currentLang = 'ar';
+
     // ==================== 2. زر القائمة الجانبية (Sidebar Toggle للموبايل) ====================
     const menuToggle = document.getElementById('menuToggle');
     const sidebar = document.getElementById('sidebar');
@@ -27,7 +35,6 @@ let currentLang = 'ar';
             sidebar.classList.toggle('active');
         });
 
-        // إغلاق السايدبار عند النقر في أي مكان خارجها على الموبايل
         document.addEventListener('click', (e) => {
             if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
                 sidebar.classList.remove('active');
@@ -35,9 +42,8 @@ let currentLang = 'ar';
         });
     }
 
-      // ==================== 3. زر تبديل اللغة (AR / EN) الشامل ====================
+    // ==================== 3. نظام تبديل اللغة (AR / EN) الشامل ====================
     const langBtn = document.getElementById('langBtn');
-  
 
     if (langBtn) {
         langBtn.addEventListener('click', () => {
@@ -46,13 +52,13 @@ let currentLang = 'ar';
             document.documentElement.lang = currentLang;
             langBtn.textContent = currentLang === 'ar' ? 'EN' : 'AR';
 
-            // 1. ترجمة العنوان الفرعي في الشريط العلوي
+            // ترجمة العنوان الفرعي
             const subtitle = document.querySelector('.header-title span');
             if (subtitle) {
                 subtitle.textContent = currentLang === 'ar' ? 'تقييم الملاءة المكانية والمنظومة' : 'Spatial Suitability & System Evaluation';
             }
 
-            // 2. ترجمة عناوين بطاقات القائمة الجانبية بالكامل
+            // ترجمة عناوين بطاقات القائمة الجانبية
             const cards = document.querySelectorAll('.sidebar .card h3');
             if (cards.length >= 4) {
                 if (currentLang === 'en') {
@@ -68,29 +74,25 @@ let currentLang = 'ar';
                 }
             }
 
-            // 3. ترجمة أزرار الرسم والتراجع
+            // ترجمة أزرار الرسم والتراجع
             const drawBtn = document.getElementById('drawPolyBtn');
             const undoBtn = document.getElementById('undoBtn');
             if (drawBtn) drawBtn.innerHTML = currentLang === 'ar' ? '<i class="fa-solid fa-draw-polygon"></i> رسم المضلع' : '<i class="fa-solid fa-draw-polygon"></i> Draw Polygon';
             if (undoBtn) undoBtn.innerHTML = currentLang === 'ar' ? '<i class="fa-solid fa-rotate-left"></i> تراجع' : '<i class="fa-solid fa-rotate-left"></i> Undo';
 
-            // 4. ترجمة الأزرار السفلية
+            // ترجمة الأزرار السفلية
             const calcLoadBtn = document.getElementById('calcLoadBtn');
             const exportReportBtn = document.getElementById('exportReportBtn');
             if (calcLoadBtn) calcLoadBtn.textContent = currentLang === 'ar' ? 'حاسبة الأحمال' : 'Load Calculator';
             if (exportReportBtn) exportReportBtn.textContent = currentLang === 'ar' ? 'تصدير التقرير الهندسي' : 'Export Engineering Report';
 
-            // 5. إعادة تحديث وحساب بيانات التقرير والبطاقات باللغة الجديدة فوراً
             if (typeof updateCalculations === 'function') {
                 updateCalculations();
             }
         });
     }
 
-
-
     // ==================== 4. تهيئة الخريطة (Google Hybrid) ====================
-    // الخريطة تبدأ في إحداثيات الخرطوم الافتراضية
     const map = L.map('map', { maxZoom: 21, zoomControl: true }).setView([15.5007, 32.5599], 13);
 
     L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
@@ -98,16 +100,16 @@ let currentLang = 'ar';
         attribution: 'Google Maps Hybrid'
     }).addTo(map);
 
-    // للتأكد من تحديث أبعاد الخريطة بشكل صحيح عند تحميل الصفحة
     setTimeout(() => {
         map.invalidateSize();
     }, 200);
 
-    // ==================== 5. أدوات الرسم والمضلعات وأطوال الأضلاع ====================
+    // ==================== 5. أدوات الرسم، إخفاء السايدبار، ونافذة الـ OK فوق المضلع ====================
     const drawnItems = new L.FeatureGroup();
     map.addLayer(drawnItems);
     let edgeMarkers = [];
-    let drawnAreaSquareMeters = 19.91; // القيمة الافتراضية
+    let drawnAreaSquareMeters = 19.91;
+    let activePolygonLayer = null;
 
     const polygonDrawer = new L.Draw.Polygon(map, {
         showArea: true,
@@ -120,10 +122,11 @@ let currentLang = 'ar';
 
     if (drawPolyBtn) {
         drawPolyBtn.addEventListener('click', () => {
-            polygonDrawer.enable();
-            if (window.innerWidth <= 768 && sidebar) {
-                sidebar.classList.remove('active'); // إغلاق السايدبار للتركيز على الرسم في الخريطة
+            // إخفاء السايدبار تلقائياً عند بدء الرسم لتتسع الخريطة بالكامل
+            if (sidebar) {
+                sidebar.classList.remove('active');
             }
+            polygonDrawer.enable();
         });
     }
 
@@ -147,14 +150,16 @@ let currentLang = 'ar';
         drawnItems.clearLayers();
         clearEdgeTooltips();
         drawnItems.addLayer(layer);
+        activePolygonLayer = layer;
 
         const latlngs = layer.getLatLngs()[0];
-       
-        // حساب وعرض أطوال الأضلاع فوق الأضلاع مباشرة بالأمتار
+      
+        let dimensionsSummary = [];
         for (let i = 0; i < latlngs.length; i++) {
             let p1 = latlngs[i];
             let p2 = latlngs[(i + 1) % latlngs.length];
             let dist = p1.distanceTo(p2).toFixed(1);
+            dimensionsSummary.push(`${dist}m`);
 
             let midLat = (p1.lat + p2.lat) / 2;
             let midLng = (p1.lng + p2.lng) / 2;
@@ -169,7 +174,6 @@ let currentLang = 'ar';
             edgeMarkers.push(tooltip);
         }
 
-        // حساب المساحة بدقة بالمتر المربع
         let area = 0;
         if (latlngs.length > 2) {
             for (let i = 0; i < latlngs.length; i++) {
@@ -182,9 +186,38 @@ let currentLang = 'ar';
         drawnAreaSquareMeters = area;
         document.getElementById('areaCalc').textContent = `${area.toFixed(2)} m²`;
         updateCalculations();
+
+        // حساب مركز المضلع لعرض نافذة الـ Popup بشقيها مع زر الـ OK
+        const center = layer.getBounds().getCenter();
+        const popupContent = document.createElement('div');
+        popupContent.style.cssText = "text-align: right; font-family: 'Cairo', sans-serif; padding: 5px;";
+        popupContent.innerHTML = `
+            <p style="margin: 0 0 5px 0; font-weight: bold; color: #0d1b2a;">${currentLang === 'ar' ? '📊 نتائج قياس المضلع' : '📊 Polygon Measurement'}</p>
+            <p style="margin: 0 0 3px 0; font-size: 12px;">${currentLang === 'ar' ? 'المساحة:' : 'Area:'} <strong>${area.toFixed(2)} m²</strong></p>
+            <p style="margin: 0 0 8px 0; font-size: 11px; color: #555;">${currentLang === 'ar' ? 'الأطوال:' : 'Sides:'} ${dimensionsSummary.join(' - ')}</p>
+            <button id="mapPopupOkBtn" style="background:#f39c12; color:#fff; border:none; padding:4px 14px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12px;">OK</button>
+        `;
+
+        const popup = L.popup({ closeOnClick: false, autoClose: false })
+            .setLatLng(center)
+            .setContent(popupContent)
+            .openOn(map);
+
+        // عند النقر على زر OK، يتم إغلاق النافذة وإعادة إظهار السايدبار تلقائياً
+        setTimeout(() => {
+            const okBtn = document.getElementById('mapPopupOkBtn');
+            if (okBtn) {
+                okBtn.onclick = () => {
+                    map.closePopup(popup);
+                    if (sidebar && window.innerWidth <= 768) {
+                        sidebar.classList.add('active'); // إعادة إظهار السايدبار
+                    }
+                };
+            }
+        }, 100);
     });
 
-    // ==================== 6. النقر على الخريطة لتحديث الإشعاع والزاوية والارتفاع ====================
+    // ==================== 6. النقر على الخريطة للإشعاع والزاوية والارتفاع ====================
     let currentMarker = null;
     let selectedLat = 15.5007;
     let selectedLng = 32.5599;
@@ -198,7 +231,6 @@ let currentLang = 'ar';
         if (currentMarker) map.removeLayer(currentMarker);
         currentMarker = L.marker([selectedLat, selectedLng]).addTo(map);
 
-        // زاوية التعامد بناءً على خط العرض
         const optimalTilt = Math.abs(selectedLat).toFixed(1);
         document.getElementById('tiltVal').textContent = optimalTilt + '°';
 
@@ -230,14 +262,14 @@ let currentLang = 'ar';
 
         if (panelW > 0) {
             const count = Math.ceil((reqKW * 1000) / panelW);
-            document.getElementById('panelCount').textContent = `${count} لوح`;
+            document.getElementById('panelCount').textContent = `${count} ${currentLang === 'ar' ? 'لوح' : 'Panels'}`;
         }
     }
 
     if (reqCapInput) reqCapInput.addEventListener('input', updateCalculations);
     if (panelCapInput) panelCapInput.addEventListener('input', updateCalculations);
 
-    // ==================== 8. نافذة حاسبة الأحمال والتقرير الاستشاري ====================
+    // ==================== 8. نافذة حاسبة الأحمال والتقرير الاستشاري المترجم بالكامل ====================
     const loadModal = document.getElementById('loadModal');
     const reportModal = document.getElementById('reportModal');
 
@@ -268,36 +300,53 @@ let currentLang = 'ar';
         });
     }
 
-    // تصدير التقرير الهندسي
+    // تصدير التقرير الهندسي مع دعم الترجمة الشاملة للغة النشطة (AR / EN)
     const exportReportBtn = document.getElementById('exportReportBtn');
     const closeReportBtn = document.getElementById('closeReportBtn');
     const printReportBtn = document.getElementById('printReportBtn');
 
     if (exportReportBtn && reportModal) {
         exportReportBtn.addEventListener('click', () => {
-      
-        // --- 1. ضعي متغيرات النصوص هنا لتتغير تلقائياً حسب اللغة ---
-        const repTitle = currentLang === 'ar' ? 'تقرير الاستشارات هندسياً' : 'Solar Engineering Consultancy Report';
-        const labelElevation = currentLang === 'ar' ? 'الارتفاع عن البحر' : 'Elevation Above Sea Level';
-        const labelSolar = currentLang === 'ar' ? 'الإشعاع الشمسي (GHI)' : 'Solar Irradiance (GHI)';
-        const labelArea = currentLang === 'ar' ? 'المساحة المحسوبة' : 'Calculated Area';
-        const labelPanels = currentLang === 'ar' ? 'عدد الألواح' : 'Number of Panels';
-        const labelTotalPower = currentLang === 'ar' ? 'القدرة الإجمالية' : 'Total Capacity';
-        const labelInverter = currentLang === 'ar' ? 'محول الطاقة (Inverter)' : 'Power Inverter';
-        const labelBattery = currentLang === 'ar' ? 'بنك البطاريات المطلوب' : 'Required Battery Bank';
+            // قاموس النصوص الخاص بمحتوى التقرير بناءً على اللغة الحالية
+            const repTitle = currentLang === 'ar' ? 'تقرير الاستشارات هندسياً للطاقة الشمسية' : 'Solar Engineering Consultancy Report';
+            const repDesigner = currentLang === 'ar' ? 'تصميم وتطوير: شاهدا سيف' : 'Designed & Developed by Shahd Saif';
+            const repDateLabel = currentLang === 'ar' ? 'تاريخ التقرير:' : 'Report Date:';
+           
+            const sec1Title = currentLang === 'ar' ? 'أولاً: التحليل الجغرافي والمكاني للموقع' : 'I. Geographic & Spatial Site Analysis';
+            const labelCoords = currentLang === 'ar' ? 'الإحداثيات الجغرافية:' : 'Geographic Coordinates:';
+            const labelElevation = currentLang === 'ar' ? 'الارتفاع عن البحر:' : 'Elevation Above Sea Level:';
+            const labelSolar = currentLang === 'ar' ? 'الإشعاع الشمسي (GHI):' : 'Solar Irradiance (GHI):';
+            const labelMcda = currentLang === 'ar' ? 'درجة الملائمة (MCDA):' : 'Suitability Score (MCDA):';
+
+            const sec2Title = currentLang === 'ar' ? 'ثانياً: تقييم المساحات وسعة الألواح' : 'II. Area & Panel Capacity Assessment';
+            const labelArea = currentLang === 'ar' ? 'المساحة المحسوبة:' : 'Calculated Area:';
+            const labelPanels = currentLang === 'ar' ? 'عدد الألواح:' : 'Number of Panels:';
+            const labelTilt = currentLang === 'ar' ? 'زاوية ميل وتعامد الألواح:' : 'Panel Tilt & Orientation Angle:';
+            const labelTotalPower = currentLang === 'ar' ? 'القدرة الإجمالية:' : 'Total Capacity:';
+
+            const sec3Title = currentLang === 'ar' ? 'ثالثاً: حاسبة الأحمال ومكونات المنظومة' : 'III. Load Calculator & System Components';
+            const thComponent = currentLang === 'ar' ? 'المكون الهندسي' : 'Engineering Component';
+            const thSpec = currentLang === 'ar' ? 'المواصفة المحسوبة' : 'Calculated Specification';
+            const rowTotalLoad = currentLang === 'ar' ? 'إجمالي الأحمال الكلية' : 'Total System Load';
+            const rowInverter = currentLang === 'ar' ? 'محول الطاقة (Inverter)' : 'Power Inverter';
+            const rowBattery = currentLang === 'ar' ? 'بنك البطاريات المطلوب' : 'Required Battery Bank';
+
             const totalWatt = parseFloat(document.getElementById('loadWattInput') ? document.getElementById('loadWattInput').value : 31000) || 31000;
             const totalKW = (totalWatt / 1000).toFixed(2);
             const panelW = panelCapInput ? panelCapInput.value : 400;
             const count = Math.ceil(totalWatt / panelW);
             const inverterKW = (totalKW * 1.25).toFixed(2);
-           
-            // حساب بنك البطاريات بدقة ليعطي القيمة المطلوبة (43.4 أو ما يناسبها حسب الحسابات)
             const battKWh = ((totalKW * 14) / 10).toFixed(1);
 
+            // تطبيق النصوص على عناصر نافذة التقرير داخل الـ HTML لديك
+            // (تأكد من مطابقة المعرفات في الـ HTML لديك أو تحديثها بناءً على هذه العناصر)
+            const modalContentBox = reportModal.querySelector('.modal-content, .report-box') || reportModal;
+           
+            // حقن وتحديث النصوص ديناميكياً بناءً على اللغة
             document.getElementById('repCoords').textContent = `[${selectedLng.toFixed(4)}, ${selectedLat.toFixed(4)}]`;
             document.getElementById('repAreaVal').textContent = document.getElementById('areaCalc').textContent;
             document.getElementById('repPanelWattTag').textContent = `${panelW}W`;
-            document.getElementById('repPanelCountVal').textContent = `${count} لوح`;
+            document.getElementById('repPanelCountVal').textContent = `${count} ${currentLang === 'ar' ? 'لوح' : 'Panels'}`;
             document.getElementById('repTiltAngleVal').textContent = document.getElementById('tiltVal').textContent;
             document.getElementById('repTotalKWp').textContent = `${totalKW} kWp`;
 
@@ -323,3 +372,4 @@ let currentLang = 'ar';
 
     updateCalculations();
 });
+

@@ -236,3 +236,18 @@ body.login-body {
     max-height: 90vh !important;
     overflow-y: auto !important;
 }
+/* حل مشاكل العرض والتمرير على الهواتف للنوافذ المنبثقة والتقارير */
+@media (max-width: 768px) {
+    .modal-box, .report-modal, #reportModal {
+        width: 95% !important;
+        max-height: 85vh !important;
+        overflow-y: auto !important;
+        padding: 1rem !important;
+        margin: 10px auto !important;
+    }
+   
+    body {
+        font-size: 14px !important;
+    }
+}
+

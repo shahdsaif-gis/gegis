@@ -43,36 +43,60 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==================== 3. نظام تبديل اللغة (AR / EN) الشامل ====================
-    const langBtn = document.getElementById('langBtn');
+ // ==================== نظام تبديل اللغة (AR / EN) الشامل ====================
+const langBtn = document.getElementById('langBtn');
 
-    if (langBtn) {
-        langBtn.addEventListener('click', () => {
-            currentLang = currentLang === 'ar' ? 'en' : 'ar';
-            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.documentElement.lang = currentLang;
-            langBtn.textContent = currentLang === 'ar' ? 'EN' : 'AR';
+// دالة موحدة لتطبيق الترجمة على كامل الواجهة
+function applyLanguage() {
+    if (!langBtn) return;
+   
+    // تحديث اتجاه الصفحة ولغتها
+    document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = currentLang;
+    langBtn.textContent = currentLang === 'ar' ? 'EN' : 'AR';
 
-            // ترجمة العنوان الفرعي
-            const subtitle = document.querySelector('.header-title span');
-            if (subtitle) {
-                subtitle.textContent = currentLang === 'ar' ? 'تقييم الملاءة المكانية والمنظومة' : 'Spatial Suitability & System Evaluation';
-            }
+    // 1. ترجمة العنوان الفرعي في الهيدر
+    const subtitle = document.querySelector('.header-title span');
+    if (subtitle) {
+        subtitle.textContent = currentLang === 'ar' ? 'تقييم الملائمة المكانية والمنظومة' : 'Spatial Suitability & System Evaluation';
+    }
 
-            // ترجمة عناوين بطاقات القائمة الجانبية
-            const cards = document.querySelectorAll('.sidebar .card h3');
-            if (cards.length >= 4) {
-                if (currentLang === 'en') {
-                    cards[0].innerHTML = '<i class="fa-solid fa-layer-group"></i> Spatial & Climatic Analysis';
-                    cards[1].innerHTML = '<i class="fa-solid fa-ruler-combined"></i> Area & Layout Assessment';
-                    cards[2].innerHTML = '<i class="fa-solid fa-bolt"></i> Load & System Components';
-                    cards[3].innerHTML = '<i class="fa-solid fa-solar-panel"></i> Solar Panel Specifications';
-                } else {
-                    cards[0].innerHTML = '<i class="fa-solid fa-layer-group"></i> التحليل الجغرافي والمكاني';
-                    cards[1].innerHTML = '<i class="fa-solid fa-ruler-combined"></i> تقييم المساحات والأضلاع';
-                    cards[2].innerHTML = '<i class="fa-solid fa-bolt"></i> حاسبة الأحمال ومكونات المنظومة';
-                    cards[3].innerHTML = '<i class="fa-solid fa-solar-panel"></i> مواصفات الألواح الشمسية';
-                }
-            }
+    // 2. ترجمة عناوين البطاقات الجانبية (Sidebar Cards)
+    const cards = document.querySelectorAll('.sidebar .card h3');
+    if (cards.length >= 4) {
+        if (currentLang === 'en') {
+            cards[0].innerHTML = '<i class="fa-solid fa-layer-group"></i> Spatial & Climatic Analysis';
+            cards[1].innerHTML = '<i class="fa-solid fa-ruler-combined"></i> Area & Layout Assessment';
+            cards[2].innerHTML = '<i class="fa-solid fa-bolt"></i> Load & System Components';
+            cards[3].innerHTML = '<i class="fa-solid fa-solar-panel"></i> Solar Panel Specifications';
+        } else {
+            cards[0].innerHTML = '<i class="fa-solid fa-layer-group"></i> الطبقات المكانية المتاحة';
+            cards[1].innerHTML = '<i class="fa-solid fa-ruler-combined"></i> المساحة والألواح الشمسية';
+            cards[2].innerHTML = '<i class="fa-solid fa-bolt"></i> أحمال الأجهزة'; // أو النص العربي الأصلي لديك
+            cards[3].innerHTML = '<i class="fa-solid fa-solar-panel"></i> مواصفات الألواح الشمسية'; // أو النص الأصلي
+        }
+    }
+
+    // 3. ترجمة أزرار الرسم والتراجع
+    const drawBtn = document.getElementById('drawPolyBtn');
+    const undoBtn = document.getElementById('undoBtn');
+    if (drawBtn) {
+        drawBtn.innerHTML = currentLang === 'ar' ? '<i class="fa-solid fa-draw-polygon"></i> رسم المضلع' : '<i class="fa-solid fa-draw-polygon"></i> Draw Polygon';
+    }
+    if (undoBtn) {
+        undoBtn.innerHTML = currentLang === 'ar' ? '<i class="fa-solid fa-rotate-left"></i> تراجع' : '<i class="fa-solid fa-rotate-left"></i> Undo';
+    }
+}
+
+// تفعيل الحدث عند الضغط على زر اللغة
+if (langBtn) {
+    langBtn.addEventListener('click', () => {
+        currentLang = currentLang === 'ar' ? 'en' : 'ar';
+        applyLanguage();
+    });
+}
+
+
 
             // ترجمة أزرار الرسم والتراجع
             const drawBtn = document.getElementById('drawPolyBtn');

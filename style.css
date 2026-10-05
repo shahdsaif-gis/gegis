@@ -71,7 +71,7 @@ body, html {
 .btn-grey { background: #475569; color: #fff; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; }
 
 /* ==================== تقرير الاستشارات هندسياً والعلامة المائية ==================== */
-.consultancy-report-card { background: #ffffff; color: #0f172a; width: 92%; max-width: 580px; border-radius: 12px; padding: 1.5rem; max-height: 90vh; overflow-y: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+.consultancy-report-card { background: #ffffff; color: #0f172a; width: 92%; max-width: 580px; border-radius: 12px; padding: 1.5rem; max-height: 90vh; overflow-y: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
 .consultancy-report-card::before { content: "GEGIS"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 8rem; font-weight: 800; color: rgba(245, 158, 11, 0.07); pointer-events: none; z-index: 0; font-family: 'Poppins', sans-serif; letter-spacing: 5px; }
 
 .rep-header-row, .rep-section, .rep-actions-row { position: relative; z-index: 1; }
@@ -91,7 +91,7 @@ body, html {
 .rep-table th { background: #0f172a; color: #ffffff; padding: 0.5rem; text-align: right; }
 .rep-table td { padding: 0.55rem; border-bottom: 1px solid #e2e8f0; color: #334155; }
 
-.rep-actions-row { display: flex; gap: 0.6rem; margin-top: 1.2rem; }
+.rep-actions-row, .report-actions, .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 10px; border-top: 1px solid #e2e8f0; position: sticky; bottom: 0; background: #ffffff; z-index: 10; }
 .btn-dark-navy { flex: 1; background: #0f172a; color: #ffffff; border: none; padding: 0.6rem; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
 .edge-tooltip { background: rgba(15, 23, 42, 0.9); border: 1px solid #f59e0b; color: #ffffff; font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
@@ -99,40 +99,23 @@ body, html {
 /* ==================== صفحة تسجيل الدخول ==================== */
 body.login-body { background-color: #0b1329 !important; display: flex !important; justify-content: center !important; align-items: center !important; height: 100vh !important; width: 100vw !important; margin: 0 !important; padding: 1rem !important; direction: rtl !important; overflow: hidden !important; }
 .login-container { background: #111a2e; border: 1px solid #233354; border-radius: 12px; padding: 2rem; width: 100%; max-width: 400px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7); margin: auto !important; }
-/* --- أضيفي هذا التنسيق في آخر سطر بملف الـ style.css --- */
-.consultancy-report-card, #reportModal {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    max-height: 90vh;
-    overflow-y: auto;
-}
 
-.rep-actions-row, .report-actions, .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
-    padding-top: 10px;
-    border-top: 1px solid #e2e8f0;
-    position: sticky;
-    bottom: 0;
-    background: #ffffff;
-    z-index: 10;
-}
+/* ==================== التجاوب مع الهواتف (Mobile Responsiveness) ==================== */
 @media (max-width: 768px) {
     .sidebar {
         position: fixed;
-        right: -280px; /* إخفاء السايدبار خارج الشاشة يمينًا (أو left: -280px حسب اتجاهك) */
-        top: 0;
-        width: 280px;
-        height: 100vh;
-        transition: right 0.3s ease-in-out; /* حركة انسيابية للفتح والإغلاق */
+        right: -300px; /* إخفاء السايدبار بالكامل خارج الشاشة يمينًا */
+        top: 60px; /* يبدأ تحت الهيدر مباشرة لكي لا يغطيه */
+        width: 280px; /* عرض مناسب وقصير غير شاش كامل */
+        height: calc(100vh - 60px);
+        transition: right 0.3s ease-in-out;
         z-index: 1000;
-        background: #ffffff;
+        background: #111a2e !important; /* خلفية أزرق داكن وليست بيضاء */
+        border-left: 1px solid #233354;
+        box-shadow: -5px 0 25px rgba(0,0,0,0.5);
     }
 
-    /* عندما تضاف فئة active بواسطة الجافاسكربت تظهر القائمة */
+    /* عندما تضاف فئة active بواسطة الجافاسكربت تظهر القائمة من اليمين */
     .sidebar.active {
         right: 0;
     }

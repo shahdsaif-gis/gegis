@@ -98,12 +98,7 @@ if (langBtn) {
 
 
 
-            // ترجمة أزرار الرسم والتراجع
-            const drawBtn = document.getElementById('drawPolyBtn');
-            const undoBtn = document.getElementById('undoBtn');
-            if (drawBtn) drawBtn.innerHTML = currentLang === 'ar' ? '<i class="fa-solid fa-draw-polygon"></i> رسم المضلع' : '<i class="fa-solid fa-draw-polygon"></i> Draw Polygon';
-            if (undoBtn) undoBtn.innerHTML = currentLang === 'ar' ? '<i class="fa-solid fa-rotate-left"></i> تراجع' : '<i class="fa-solid fa-rotate-left"></i> Undo';
-
+           
             // ترجمة الأزرار السفلية
             const calcLoadBtn = document.getElementById('calcLoadBtn');
             const exportReportBtn = document.getElementById('exportReportBtn');

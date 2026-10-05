@@ -13,10 +13,16 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
+// ضبط نوع الجلسة لتكون مرتبطة بفتح المتصفح/التبويب فقط (تنتهي بإغلاقه لتظهر نافذة الدخول في كل زيارة جديدة)
+auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+  .catch((error) => {
+    console.error("Error setting auth persistence:", error);
+  });
+
 // حالة وضع النموذج: true تعني تسجيل دخول، false تعني إنشاء حساب جديد
 let isLoginMode = true;
 
-// التبديل تلقائياً للصفحة الرئيسية إذا كان مسجلاً
+// التبديل تلقائياً للصفحة الرئيسية إذا كانت الجلسة نشطة
 auth.onAuthStateChanged((user) => {
   if (user) {
     window.location.href = "index.html";
@@ -60,10 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (authForm) {
     authForm.addEventListener('submit', (e) => {
       e.preventDefault();
-     
+    
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
-     
+    
       if (errorMessage) errorMessage.style.display = 'none';
 
       if (isLoginMode) {
@@ -104,3 +110,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+

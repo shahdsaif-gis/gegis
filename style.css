@@ -300,13 +300,16 @@ body.login-body {
     }
 }
 
-/* تنسيق بطاقة التقرير النافذة لتقبل التمرير */
-.consultancy-report-card {
-    max-height: 85vh !important;
+/* 1. السايدبار بالكامل يتمرر كوحدة واحدة متكاملة */
+aside, .sidebar, #sidebar, .sidebar-container {
+    height: 100vh !important;
+    max-height: 100vh !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
 }
-/* حل شامل للتمرير لكل النوافذ المنبثقة والبطاقات في الموقع */
-.modal-overlay, .modal-content, .consultancy-report-card, div[class*="modal"], div[class*="popup"], div[class*="card"] {
+
+/* 2. نافذة التقرير المنبثقة تتمرر عند الحاجة בלבד */
+#reportModal, .consultancy-report-card, .modal-content {
     max-height: 85vh !important;
     overflow-y: auto !important;
 }

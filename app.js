@@ -357,7 +357,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('tbBattery').textContent = `kWh (48V / 904Ah) ${battKWh}`;
 document.getElementById('repElev').textContent = document.getElementById('elevWindVal') ? document.getElementById('elevWindVal').textContent : '380m | 15km/h';
 document.getElementById('repSuitScore').textContent = document.getElementById('suitabilityVal') ? document.getElementById('suitabilityVal').textContent : 'S1 (85%)';
-
+const currentSolar = document.getElementById('solarVal') ? document.getElementById('solarVal').textContent : '2,174 kWh/m²/yr';
+    if (document.getElementById('repGHI')) {
+        document.getElementById('repGHI').textContent = currentSolar;
+    }
 
 
             reportModal.style.display = 'flex';

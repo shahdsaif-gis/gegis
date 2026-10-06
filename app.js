@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const avgWind = (data.daily.wind_speed_10m_max.reduce((a, b) => a + b, 0) / data.daily.wind_speed_10m_max.length).toFixed(0);
 
                 document.getElementById('solarVal').innerHTML = `${avgSolarKWh} <small>kWh/m²/yr</small>`;
-                document.getElementById('elevWindVal').textContent = `380m | ${avgWind}km/h`;
+                
             }
         } catch (err) {
             console.error("API Error:", err);

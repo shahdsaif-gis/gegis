@@ -300,3 +300,13 @@ body.login-body {
     }
 }
 
+/* تنسيق بطاقة التقرير النافذة لتقبل التمرير */
+.consultancy-report-card {
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+}
+/* حل شامل للتمرير لكل النوافذ المنبثقة والبطاقات في الموقع */
+.modal-overlay, .modal-content, .consultancy-report-card, div[class*="modal"], div[class*="popup"], div[class*="card"] {
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+}

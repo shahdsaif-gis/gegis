@@ -355,8 +355,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('tbTotalLoad').textContent = `kW ${totalKW}`;
             document.getElementById('tbInverter').textContent = `kW ${inverterKW}`;
             document.getElementById('tbBattery').textContent = `kWh (48V / 904Ah) ${battKWh}`;
-document.getElementById('repElevationVal').textContent = document.getElementById('elevWindVal') ? document.getElementById('elevWindVal').textContent : '380m | 15km/h';
-document.getElementById('repSuitabilityVal').textContent = document.getElementById('suitabilityVal') ? document.getElementById('suitabilityVal').textContent : 'S1 (85%)';
+document.getElementById('repElev').textContent = document.getElementById('elevWindVal') ? document.getElementById('elevWindVal').textContent : '380m | 15km/h';
+document.getElementById('repSuitScore').textContent = document.getElementById('suitabilityVal') ? document.getElementById('suitabilityVal').textContent : 'S1 (85%)';
 
 
 

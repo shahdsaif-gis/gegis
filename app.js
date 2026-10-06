@@ -235,12 +235,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const optimalTilt = Math.abs(selectedLat).toFixed(1);
         document.getElementById('tiltVal').textContent = optimalTilt + '°';
 
-        // التحقق الديناميكي من كون النقطة تقع في مسطح مائي أو بحر (حسب الإحداثيات أو النطاق الجغرافي)
-      const dynamicElevation = Math.floor(300 + (Math.abs(selectedLat) * 50) % 400);
-const elevationElement = document.getElementById('elevationVal');
-if (elevationElement) {
-    elevationElement.textContent = dynamicElevation + ' m';
-}
+          try {
+        // 1. جلب الارتفاع الحقيقي من سطح البحر حسب إحداثيات النقطة
+        const elevRes = await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${selectedLat}&longitude=${selectedLng}`);
+        const elevData = await elevRes.json();
+        const realElevation = elevData.elevation && elevData.elevation.length > 0 ? Math.round(elevData.elevation[0]) : 380;
+       
+        // 2. جلب سرعة الرياح الحقيقية الحالية من نماذج الطقس العالمية
+        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${selectedLat}&longitude=${selectedLng}&current=wind_speed_10m`);
+        const weatherData = await weatherRes.json();
+        const realWindSpeed = weatherData.current && weatherData.current.wind_speed_10m ? weatherData.current.wind_speed_10m : 15;
+
+        // 3. تحديث واجهة السايدبار بالقيم الحقيقية
+        const elevWindElement = document.getElementById('elevWindVal');
+        if (elevWindElement) {
+            elevWindElement.textContent = `${realElevation}m | ${realWindSpeed}km/h`;
+        }
+    } catch (error) {
+        console.error("خطأ في جلب البيانات الحقيقية:", error);
+    }
       
         // تحديث قيمة درجة الملائمة (MCDA) في الواجهة ديناميكياً
         const suitabilityElement = document.getElementById('suitabilityVal') || document.querySelector('.suitability-score');

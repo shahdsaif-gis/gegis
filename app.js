@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
         // تحديث قيمة درجة الملائمة (MCDA) في الواجهة ديناميكياً
         const suitabilityElement = document.getElementById('suitabilityVal') || document.querySelector('.suitability-score');
-       
+       const isWaterBody = (selectedLng > 36.0 && selectedLat > 18.00);
         if (isWaterBody) {
             if (suitabilityElement) {
                 suitabilityElement.textContent = currentLang === 'ar' ? 'غير مناسب (مسطح مائي / بحر)' : 'Unsuitable (Water Body)';

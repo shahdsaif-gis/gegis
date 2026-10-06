@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data && data.daily) {
                 const avgRadMJ = data.daily.shortwave_radiation_sum.reduce((a, b) => a + b, 0) / data.daily.shortwave_radiation_sum.length;
-                const avgSolarKWh = (avgRadMJ / 3.6).toFixed(3);
+                const avgSolarKWh = ((avgRadMJ / 3.6) * 365).toFixed(0);
                 const avgWind = (data.daily.wind_speed_10m_max.reduce((a, b) => a + b, 0) / data.daily.wind_speed_10m_max.length).toFixed(0);
 
                 document.getElementById('solarVal').innerHTML = `${avgSolarKWh} <small>kWh/m²/yr</small>`;

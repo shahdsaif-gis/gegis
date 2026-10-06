@@ -236,9 +236,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('tiltVal').textContent = optimalTilt + '°';
 
         // التحقق الديناميكي من كون النقطة تقع في مسطح مائي أو بحر (حسب الإحداثيات أو النطاق الجغرافي)
-        // مثال تقريبي للمناطق البحرية (يمكن تعديله حسب الحاجة)
-        const isWaterBody = (selectedLng > 36.0 && selectedLat > 18.00);
-
+      const dynamicElevation = Math.floor(300 + (Math.abs(selectedLat) * 50) % 400);
+const elevationElement = document.getElementById('elevationVal');
+if (elevationElement) {
+    elevationElement.textContent = dynamicElevation + ' m';
+}
+      
         // تحديث قيمة درجة الملائمة (MCDA) في الواجهة ديناميكياً
         const suitabilityElement = document.getElementById('suitabilityVal') || document.querySelector('.suitability-score');
        
@@ -339,6 +342,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('tbTotalLoad').textContent = `kW ${totalKW}`;
             document.getElementById('tbInverter').textContent = `kW ${inverterKW}`;
             document.getElementById('tbBattery').textContent = `kWh (48V / 904Ah) ${battKWh}`;
+document.getElementById('repElevationVal').textContent = document.getElementById('elevationVal') ? document.getElementById('elevationVal').textContent : '380 m';
+document.getElementById('repSuitabilityVal').textContent = document.getElementById('suitabilityVal') ? document.getElementById('suitabilityVal').textContent : '85%';
+
 
             reportModal.style.display = 'flex';
         });
